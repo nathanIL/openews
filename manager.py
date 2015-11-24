@@ -4,9 +4,9 @@ Project execution / entry point for all parts:
 2) Workers
 3) Server (HTTP)
 """
-import os
 from flask.ext.script import Manager, Server
-from server.commands.scrapper import Scrapper
+
+from scrappers.commands import Scrapper
 from server import server_app
 
 manager = Manager(server_app)

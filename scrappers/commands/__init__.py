@@ -4,7 +4,7 @@ from scrappers.utils import scrapper_classes
 
 class Scrapper(Command):
     """
-    A command to manage scrappers.
+    Manage scrappers
     """
     def __init__(self):
         super().__init__()
