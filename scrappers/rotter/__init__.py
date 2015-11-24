@@ -2,8 +2,7 @@ import scrappers
 
 
 class Rotter(scrappers.Scrapper):
-    """
-    Rotter forum scrapper: http://rotter.net/scoopscache.html
+    """Rotter forum (http://rotter.net/scoopscache.html) scrapper.
     From side experiment, we can do something similar to:
     gs = goslate.Goslate()
     for file in [ join('pages',f) for f in listdir('pages') if isfile(join('pages',f)) ]:
