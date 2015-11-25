@@ -1,5 +1,3 @@
-import os
-import sys
 
 
 def scrapper_classes():
@@ -9,6 +7,7 @@ def scrapper_classes():
     """
     import importlib
     import inspect
+    import os
 
     classes = []
     scrappers_parent_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'plugins')

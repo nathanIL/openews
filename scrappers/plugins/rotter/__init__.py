@@ -14,4 +14,12 @@ class Rotter(scrappers.Scrapper):
         #print(translated)
 
     """
-    pass
+
+    def __init__(self):
+        super().__init__()
+
+    def resource_url(self):
+        return 'http://rotter.net/scoopscache.html'
+
+    def next_resource_url(self):
+        pass
