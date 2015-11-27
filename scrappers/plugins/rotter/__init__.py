@@ -21,6 +21,13 @@ class Rotter(scrappers.Scrapper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def should_translate(self):
+        """
+        Hebrew posts by majority.
+        :return: True
+        """
+        return True
+
     def resource_url(self):
         return 'http://rotter.net/cgi-bin/forum/dcboard.cgi?az=list&forum=scoops1&mm=1&archive='
 

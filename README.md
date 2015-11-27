@@ -14,10 +14,13 @@ An NLP based experimental project
 ```
     { _id: ...,
       scrapper: SCRAPPER_CLASS_NAME,
-      title: SCRAPPED_TITLE
-      url: SCRAPPED_URL
+      title: SCRAPPED_TITLE,
+      title_en: TRANSLATED_TO_EN_TITLE,
+      url: SCRAPPED_URL,
+      scraped_at: DATETIME_OBJECT
     }
 ```
+compound indexes on: _url_ ASCENDING, _scraped_at_ DESCENDING
 #### Testing
 
 **Unit tests** are located under the _tests_ folder.

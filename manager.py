@@ -12,7 +12,7 @@ from server import server_app
 manager = Manager(server_app)
 
 
-manager.add_command('runserver', Server(host="0.0.0.0", port=9000))
+manager.add_command('runserver', Server(host=server_app.config['SERVER_HOST'], port=server_app.config['SERVER_PORT']))
 manager.add_command('scrapper',  Scrapper())
 
 if __name__ == "__main__":
