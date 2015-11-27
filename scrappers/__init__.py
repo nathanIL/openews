@@ -1,3 +1,6 @@
+"""
+A Scrapper instance is an entity that collects data from the resources.
+"""
 import abc
 import requests
 
@@ -30,17 +33,12 @@ class Scrapper(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def next_resource_url(self):
+    def scrape_resource(self):
         """
-        Calculates and returns the next resource (e.g: next page, REST item count, etc) URL.
-        e.g: assuming resource_url is http://www.example.com/news/pages/1
-        so next_resource_url could be: http://www.example.com/news/pages/2
-        :return: string holding a valid URL for the next resource to scrape.
+        Scrapes the provided resource up to titles_count.
+        :return: a list holding the scraped titles as dict values (title, url) as keys
         """
         pass
 
     def get_resource(self, resource):
         return requests.get(resource, verify=False)
-
-    def __call__(self, *args, **kwargs):
-        pass
