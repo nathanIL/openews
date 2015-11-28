@@ -1,5 +1,5 @@
 from nose.tools import nottest, with_setup, assert_is_instance, assert_equal, assert_true
-from scrappers.plugins.aljazeera import ALJazeera
+from scrappers.plugins.reuters import Reuters
 import os
 import validators
 import httpretty
@@ -10,18 +10,18 @@ test_data = None
 
 def create_scrapper_instance():
     global scrapper
-    scrapper = ALJazeera()
+    scrapper = Reuters()
 
 
 def create_fake_requests_mock_data():
     global test_data
-    xml = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aljazeera1.xml')
+    xml = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'reuters1.xml')
     test_data = ''.join(open(xml).readlines())
 
 
 @with_setup(create_scrapper_instance)
 def test_instance_creation():
-    assert_is_instance(scrapper, ALJazeera)
+    assert_is_instance(scrapper, Reuters)
 
 
 @with_setup(create_scrapper_instance)
@@ -63,13 +63,13 @@ def test_scrapper_should_translate():
 # Real tests - do not comment out!
 @nottest
 def test_real_scrape_resource():
-    for r in ALJazeera(titles_count=20).scrape_resource():
+    for r in Reuters(titles_count=20).scrape_resource():
         print(r)
 
 
 @nottest
-def test_real_aljazeera_call():
-    r = ALJazeera(titles_count=20)
+def test_real_reuters_call():
+    r = Reuters(titles_count=15)
     for e in r():
         print(e)
 

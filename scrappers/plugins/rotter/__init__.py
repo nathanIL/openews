@@ -22,6 +22,13 @@ class Rotter(scrappers.Scrapper):
     def resource_url(self):
         return 'http://rotter.net/cgi-bin/forum/dcboard.cgi?az=list&forum=scoops1&mm=1&archive='
 
+    def encoding(self):
+        """
+        cp1252 for hebrew
+        :return:
+        """
+        return 'cp1252'
+
     def scrape_resource(self):
         scraped_data = list()
         resource_url = self.resource_url()
@@ -31,7 +38,7 @@ class Rotter(scrappers.Scrapper):
                 data = self.get_resource(resource_url)
                 if not data:
                     break
-                data.encoding = 'cp1255'  # For hebrew
+                data.encoding = self.encoding
                 posts = BeautifulSoup(data.text, "html.parser").find_all('font', attrs={"class": "text15bn"})
                 if not posts:
                     break

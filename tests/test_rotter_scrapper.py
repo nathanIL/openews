@@ -69,7 +69,7 @@ def test_real_scrape_resource():
 
 
 @nottest
-def test_real_rotter_call_():
+def test_real_rotter_call():
     r = Rotter(titles_count=20)
     for e in r():
         print(e)

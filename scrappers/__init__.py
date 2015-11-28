@@ -31,6 +31,14 @@ class Scrapper(metaclass=abc.ABCMeta):
         return self._titles_count
 
     @abc.abstractproperty
+    def encoding(self):
+        """
+        Data resource encoding
+        :return:
+        """
+        pass
+
+    @abc.abstractproperty
     def resource_url(self):
         """
         Must be implemented by inheriting class and return the base (parent) source from which we start to scrape.
