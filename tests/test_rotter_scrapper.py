@@ -16,7 +16,7 @@ def create_scrapper_instance():
 
 def create_fake_requests_mock_data():
     global test_data
-    html = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'rotter1.html')
+    html = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'rotter1.html')
     test_data = ''.join(open(html, encoding='cp1255').readlines())
 
 

@@ -15,7 +15,7 @@ def create_scrapper_instance():
 
 def create_fake_requests_mock_data():
     global test_data
-    xml = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'reuters1.xml')
+    xml = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'reuters1.xml')
     test_data = ''.join(open(xml).readlines())
 
 
