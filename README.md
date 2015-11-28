@@ -1,3 +1,4 @@
+![TravisCI](https://travis-ci.org/nathanIL/openews.svg?branch=master)
 # Openews
 
 An NLP based experimental project
