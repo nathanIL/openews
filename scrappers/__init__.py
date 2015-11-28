@@ -4,7 +4,7 @@ A Scrapper instance is an entity that collects data from the resources.
 import abc
 import requests
 import sys
-import goslate
+from textblob import TextBlob
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from server import server_app
@@ -20,10 +20,6 @@ class Scrapper(metaclass=abc.ABCMeta):
         super().__init__(*args, **kwargs)
         self._titles_count = titles_count
         self._mongo_client_class = mongo_client_class
-        self._translator = goslate.Goslate(retry_times=10, timeout=6, service_urls=['http://translate.google.com',
-                                                                                    'http://translate.google.de',
-                                                                                    'https://translate.google.ru',
-                                                                                    'https://translate.google.it'])
 
     @property
     def titles_count(self):
@@ -66,7 +62,7 @@ class Scrapper(metaclass=abc.ABCMeta):
         """
         if not self.should_translate(): return data
         for elem in data:
-            elem['title_en'] = self._translator.translate(elem['title'], target_language='en')
+            elem['title_en'] = TextBlob(elem['title']).translate(to='en')
 
         return data
 
@@ -80,16 +76,19 @@ class Scrapper(metaclass=abc.ABCMeta):
 
     def __call__(self, *args, **kwargs):
         """
-        This is called by RQ and performs the scrape, normalization, and stores to DB.
+        This is called by RQ workers and performs the real work: scrape, normalization, and stores to DB.
         :param args:
         :param kwargs:
-        :return:
+        :return: the normalized and translated list of documents (list of dicts).
         """
+        # TODO: Perform the actual DB update
         translated_data = []
         try:
             raw = self._mongo_client_class(host=server_app.config['MONGO_HOST'], port=server_app.config['MONGO_PORT'])[
                 server_app.config['MONGO_RAW_COLLECTION']]
             translated_data = self.translate_data(self.scrape_resource())
+            for elem in translated_data:
+                elem['scrapper'] = self.__class__.__name__
         except PyMongoError as me:
             print("[MongoDB][Fatal Error]: %s" % me, file=sys.stderr)
             sys.exit(1)

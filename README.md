@@ -23,6 +23,14 @@ An NLP based experimental project
     }
 ```
 compound indexes on: _url_ ASCENDING, _scraped_at_ DESCENDING
+
+#### OS dependencies
+The following packages are required (names might be slightly different depending on the linux distro):
+
+* libxml2-dev 
+* libxslt1-dev 
+* python-dev
+
 #### Testing
 
 **Unit tests** are located under the _tests_ folder.

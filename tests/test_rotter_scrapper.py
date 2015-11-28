@@ -56,6 +56,11 @@ def test_scrape_resource_return_data():
         assert_true('scraped_at' in elem)
 
 
+@with_setup(create_scrapper_instance)
+def test_scrapper_should_translate():
+    assert_is_instance(rotter_scrapper.should_translate(), bool)
+
+
 # Real tests - do not comment out!
 @nottest
 def test_real_scrape_resource():
@@ -65,6 +70,6 @@ def test_real_scrape_resource():
 
 @nottest
 def test_real_rotter_call_():
-    r = Rotter(titles_count=20)()
-    for e in r:
-        print(e['title_en'])
+    r = Rotter(titles_count=20)
+    for e in r():
+        print(e)
