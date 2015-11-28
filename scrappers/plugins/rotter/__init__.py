@@ -1,6 +1,7 @@
 import scrappers
 import sys
 import re
+from datetime import datetime
 from bs4 import BeautifulSoup
 
 
@@ -45,7 +46,9 @@ class Rotter(scrappers.Scrapper):
                 if not posts:
                     break
                 how_many = self.titles_count - len(scraped_data)
-                scraped_data.extend({('title', p.find('b').text), ('url', p.find('a')['href'])} for p in posts[:how_many])
+                scraped_data.extend(
+                    {'title': p.find('b').text, 'url': p.find('a')['href'], 'scraped_at': datetime.utcnow()} for p in
+                    posts[:how_many])
                 resource_url = re.sub(r'&mm=\d+', '&mm=%d' % page, resource_url)
                 page += 1
         except Exception as e:

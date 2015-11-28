@@ -4,6 +4,7 @@ A Scrapper instance is an entity that collects data from the resources.
 import abc
 import requests
 import sys
+import goslate
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from server import server_app
@@ -15,9 +16,14 @@ class Scrapper(metaclass=abc.ABCMeta):
     All scrappers must inherit and implement required methods, etc.
     """
 
-    def __init__(self, titles_count=10, *args, **kwargs):
+    def __init__(self, titles_count=10, mongo_client_class=MongoClient, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._titles_count = titles_count
+        self._mongo_client_class = mongo_client_class
+        self._translator = goslate.Goslate(retry_times=10, timeout=6, service_urls=['http://translate.google.com',
+                                                                                    'http://translate.google.de',
+                                                                                    'https://translate.google.ru',
+                                                                                    'https://translate.google.it'])
 
     @property
     def titles_count(self):
@@ -48,11 +54,28 @@ class Scrapper(metaclass=abc.ABCMeta):
     def scrape_resource(self):
         """
         Scrapes the provided resource up to titles_count. It should not raise any Exception.
-        :return: a list holding the scraped titles as dict values (title, url) as keys
+        :return: a list holding the scraped titles as dict values. (title, url, scraped_at) as keys.
         """
         pass
 
+    def translate_data(self, data):
+        """
+        This should normalize (translate) the data in case needed (return value of should_translate method).
+        :param data: A list with dict values (data returned from scrape_resource method).
+        :return: data with added key (title_en) holding the translated data (in case translated has been performed).
+        """
+        if not self.should_translate(): return data
+        for elem in data:
+            elem['title_en'] = self._translator.translate(elem['title'], target_language='en')
+
+        return data
+
     def get_resource(self, resource):
+        """
+        Performs the HTTP request to the provided resource.
+        :param resource: a URL to make a request to.
+        :return: requests.Response object.
+        """
         return requests.get(resource, verify=False)
 
     def __call__(self, *args, **kwargs):
@@ -62,12 +85,15 @@ class Scrapper(metaclass=abc.ABCMeta):
         :param kwargs:
         :return:
         """
+        translated_data = []
         try:
-            raw = MongoClient(host=server_app.config['MONGO_HOST'], port=server_app.config['MONGO_PORT'])[
+            raw = self._mongo_client_class(host=server_app.config['MONGO_HOST'], port=server_app.config['MONGO_PORT'])[
                 server_app.config['MONGO_RAW_COLLECTION']]
-            scraped_data = self.scrape_resource()
+            translated_data = self.translate_data(self.scrape_resource())
         except PyMongoError as me:
             print("[MongoDB][Fatal Error]: %s" % me, file=sys.stderr)
             sys.exit(1)
         except Exception as e:
-            pass
+            print(e)
+        finally:
+            return translated_data
