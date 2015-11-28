@@ -1,4 +1,5 @@
-![TravisCI](https://travis-ci.org/nathanIL/openews.svg?branch=master)
+[![Build Status](https://travis-ci.org/nathanIL/openews.svg?branch=master)](https://travis-ci.org/nathanIL/openews?branch=master)
+[![Coverage Status](https://coveralls.io/repos/nathanIL/openews/badge.svg?branch=master&service=github)](https://coveralls.io/github/nathanIL/openews?branch=master)
 # Openews
 
 An NLP based experimental project
