@@ -27,15 +27,16 @@ def test_instance_creation():
 
 @with_setup(create_scrapper_instance)
 def test_resource_url():
-    assert_true(validators.url(rotter_scrapper.resource_url()))
+    assert_true(all([validators.url(u) for u in rotter_scrapper.resource_urls()]))
 
 
 @httpretty.activate
 @with_setup(create_scrapper_instance)
 @with_setup(create_fake_requests_mock_data)
 def test_scrape_resource():
-    httpretty.register_uri(httpretty.GET, rotter_scrapper.resource_url(),
-                           body=test_data, content_type='text/html')
+    for resource in rotter_scrapper.resource_urls():
+        httpretty.register_uri(httpretty.GET, resource,
+                               body=test_data, content_type='text/html')
     assert_is_instance(rotter_scrapper.scrape_resource(), list)
     rotter_scrapper._titles_count = 10
     assert_equal(len(rotter_scrapper.scrape_resource()), rotter_scrapper.titles_count)
@@ -47,8 +48,9 @@ def test_scrape_resource():
 @with_setup(create_scrapper_instance)
 @with_setup(create_fake_requests_mock_data)
 def test_scrape_resource_return_data():
-    httpretty.register_uri(httpretty.GET, rotter_scrapper.resource_url(),
-                           body=test_data, content_type='text/html')
+    for resource in rotter_scrapper.resource_urls():
+        httpretty.register_uri(httpretty.GET, resource,
+                               body=test_data, content_type='text/html')
     for elem in rotter_scrapper.scrape_resource():
         # we can use 'all(...)' but then when a test fails, its less verbose
         assert_true('title' in elem)

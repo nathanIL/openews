@@ -7,6 +7,8 @@ Werkzeug==0.11.2
 beautifulsoup4==4.4.1
 decorator==4.0.4
 futures==3.0.3
+gevent==1.1a1
+greenlet==0.4.9
 httpretty==0.8.10
 itsdangerous==0.24
 lxml==3.5.0

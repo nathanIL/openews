@@ -26,15 +26,16 @@ def test_instance_creation():
 
 @with_setup(create_scrapper_instance)
 def test_resource_url():
-    assert_true(validators.url(scrapper.resource_url()))
+    assert_true(all([validators.url(u) for u in scrapper.resource_urls()]))
 
 
 @httpretty.activate
 @with_setup(create_scrapper_instance)
 @with_setup(create_fake_requests_mock_data)
 def test_scrape_resource():
-    httpretty.register_uri(httpretty.GET, scrapper.resource_url(),
-                           body=test_data, content_type='text/xml')
+    for resource in scrapper.resource_urls():
+        httpretty.register_uri(httpretty.GET, resource,
+                               body=test_data, content_type='text/html')
     assert_is_instance(scrapper.scrape_resource(), list)
     scrapper._titles_count = 10
     assert_equal(len(scrapper.scrape_resource()), scrapper.titles_count)
@@ -46,8 +47,9 @@ def test_scrape_resource():
 @with_setup(create_scrapper_instance)
 @with_setup(create_fake_requests_mock_data)
 def test_scrape_resource_return_data():
-    httpretty.register_uri(httpretty.GET, scrapper.resource_url(),
-                           body=test_data, content_type='text/xml')
+    for resource in scrapper.resource_urls():
+        httpretty.register_uri(httpretty.GET, resource,
+                               body=test_data, content_type='text/html')
     for elem in scrapper.scrape_resource():
         # we can use 'all(...)' but then when a test fails, its less verbose
         assert_true('title' in elem)

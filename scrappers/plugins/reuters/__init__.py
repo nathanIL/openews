@@ -15,5 +15,5 @@ class Reuters(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
     def encoding(self):
         return 'utf-8'
 
-    def resource_url(self):
-        return 'http://feeds.reuters.com/Reuters/worldNews?format=xml'
+    def resource_urls(self):
+        return ['http://feeds.reuters.com/Reuters/worldNews?format=xml']

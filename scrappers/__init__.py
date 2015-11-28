@@ -4,10 +4,15 @@ A Scrapper instance is an entity that collects data from the resources.
 import abc
 import requests
 import sys
+import collections
+import gevent
+import gevent.monkey
 from textblob import TextBlob
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from server import server_app
+
+gevent.monkey.patch_socket()
 
 
 class Scrapper(metaclass=abc.ABCMeta):
@@ -39,10 +44,10 @@ class Scrapper(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractproperty
-    def resource_url(self):
+    def resource_urls(self):
         """
-        Must be implemented by inheriting class and return the base (parent) source from which we start to scrape.
-        :return: string holding a valid URL to start scraping from.
+        Must be implemented by inheriting class and return a list of base (parent) sources from which we start to scrape.
+        :return: a list of string URLs to start scraping from.
         """
         pass
 
@@ -74,13 +79,20 @@ class Scrapper(metaclass=abc.ABCMeta):
 
         return data
 
-    def get_resource(self, resource):
+    def get_resources(self, resources):
         """
         Performs the HTTP request to the provided resource.
-        :param resource: a URL to make a request to.
-        :return: requests.Response object.
+        :param resources: an list with the resources (URLs) to process.
+        :return: a list of requests.Response objects.
         """
-        return requests.get(resource, verify=False)
+        threads = list()
+        if isinstance(resources, list):
+            threads.extend([gevent.spawn(requests.get, url, verify=False) for url in resources])
+        else:
+            threads.append(gevent.spawn(requests.get, resources, verify=False))
+
+        gevent.joinall(threads)
+        return [r.value for r in threads if r.ready() and r.successful()]
 
     def __call__(self, *args, **kwargs):
         """

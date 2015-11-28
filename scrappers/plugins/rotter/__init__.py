@@ -19,8 +19,8 @@ class Rotter(scrappers.Scrapper):
         """
         return True
 
-    def resource_url(self):
-        return 'http://rotter.net/cgi-bin/forum/dcboard.cgi?az=list&forum=scoops1&mm=1&archive='
+    def resource_urls(self):
+        return ['http://rotter.net/cgi-bin/forum/dcboard.cgi?az=list&forum=scoops1&mm=1&archive=']
 
     def encoding(self):
         """
@@ -31,11 +31,11 @@ class Rotter(scrappers.Scrapper):
 
     def scrape_resource(self):
         scraped_data = list()
-        resource_url = self.resource_url()
+        resource_url = self.resource_urls().pop()
         page = 2
         try:
             while len(scraped_data) < self.titles_count:
-                data = self.get_resource(resource_url)
+                data = self.get_resources(resource_url)[0]
                 if not data:
                     break
                 data.encoding = self.encoding
