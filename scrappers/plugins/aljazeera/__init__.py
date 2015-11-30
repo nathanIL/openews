@@ -13,7 +13,7 @@ class ALJazeera(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
         return False
 
     def encoding(self):
-        return 'cp1252'
+        return 'utf-8'
 
     def resource_urls(self):
-        return ['http://www.aljazeera.com/xml/rss/all.xml']
+        return [{'category': 'All News', 'url': 'http://www.aljazeera.com/xml/rss/all.xml'}]
