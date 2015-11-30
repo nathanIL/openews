@@ -15,7 +15,8 @@ class RSSScrapper(object):
         scrapped_count = 0
         try:
             for data in self.get_resources(resource_urls):
-                root = etree.XML(data['data'].text.encode(self.encoding()), parser)
+                # TODO: should we really use 'replace' here?
+                root = etree.XML(data['data'].text.encode(self.encoding(), errors='replace'), parser)
                 for item in root.xpath('//channel/item'):
                     title = item.xpath('title')[0].text.strip()
                     url = item.xpath('link')[0].text.strip()

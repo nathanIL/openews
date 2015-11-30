@@ -31,9 +31,8 @@ class Scrapper(metaclass=abc.ABCMeta):
     @property
     def titles_count(self):
         """
-        We refer to "title" as an atomic sentence to be retrieved.
-        For instance, a forum thread subject.
-        :return: The max number (int) of titles to scrape from the source.
+        We refer to "title" as an atomic sentence to be retrieved. For instance, a forum thread subject.
+        :return: The max number (int) of titles to scrape from the source or None for all (default).
         """
         return self._titles_count
 
