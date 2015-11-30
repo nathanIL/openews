@@ -6,6 +6,7 @@ class Scrapper(Command):
     """
     Manage scrappers
     """
+
     def __init__(self):
         super().__init__()
 

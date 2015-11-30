@@ -1,76 +1,66 @@
-from nose.tools import nottest, with_setup, assert_is_instance, assert_equal, assert_true
 from scrappers.plugins.reuters import Reuters
+import nose.tools
+import unittest
 import os
+import os.path
 import validators
 import httpretty
-
-scrapper = None
-test_data = None
+from unittest.mock import MagicMock
 
 
-def create_scrapper_instance():
-    global scrapper
-    scrapper = Reuters()
+class TestReuters(unittest.TestCase):
+    def setUp(self):
+        self._scrapper = Reuters()
+        self._fixture = 'reuters'
+        self._data = self.mock_resource_urls()
 
+        self._scrapper.resource_urls = MagicMock(return_value=self._data)
 
-def create_fake_requests_mock_data():
-    global test_data
-    xml = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'reuters1.xml')
-    test_data = ''.join(open(xml).readlines())
+    @nose.tools.nottest
+    def mock_resource_urls(self):
+        data = []
+        dirname = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', self._fixture)
+        for file in [os.path.join(dirname, f) for f in os.listdir(dirname)]:
+            basename = os.path.basename(file)
+            data.append({'category': os.path.splitext(basename)[0],
+                         'url': 'http://test.com/rss/%s/%s' % (self._fixture, basename),
+                         'mime': 'text/xml',
+                         'data': ''.join(open(file, encoding=self._scrapper.encoding()).readlines())})
+        return data
 
+    def test_scrapper_instance(self):
+        self.assertIsInstance(self._scrapper, Reuters)
 
-@with_setup(create_scrapper_instance)
-def test_instance_creation():
-    assert_is_instance(scrapper, Reuters)
+    @httpretty.activate
+    def test_scrape_resource(self):
+        for resource in self._scrapper.resource_urls():
+            httpretty.register_uri(httpretty.GET, resource['url'],
+                                   body=resource['data'], content_type=resource['mime'])
 
+        data = self._scrapper.scrape_resources()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(len(data.keys()), 1)
+        self.assertTrue('categories' in data)
 
-@with_setup(create_scrapper_instance)
-def test_resource_url():
-    assert_true(all([validators.url(u) for u in scrapper.resource_urls()]))
+    @httpretty.activate
+    def test_titles_count(self):
+        for resource in self._scrapper.resource_urls():
+            httpretty.register_uri(httpretty.GET, resource['url'],
+                                   body=resource['data'], content_type=resource['mime'])
+        self._scrapper._titles_count = 10
+        self.assertEqual(len(self._scrapper.scrape_resources().get('categories')), self._scrapper.titles_count)
+        self._scrapper._titles_count = 35
+        self.assertEqual(len(self._scrapper.scrape_resources().get('categories')), self._scrapper.titles_count)
 
+    @httpretty.activate
+    def test_call_(self):
+        for resource in self._scrapper.resource_urls():
+            httpretty.register_uri(httpretty.GET, resource['url'],
+                                   body=resource['data'], content_type=resource['mime'])
 
-@httpretty.activate
-@with_setup(create_scrapper_instance)
-@with_setup(create_fake_requests_mock_data)
-def test_scrape_resource():
-    for resource in scrapper.resource_urls():
-        httpretty.register_uri(httpretty.GET, resource,
-                               body=test_data, content_type='text/html')
-    assert_is_instance(scrapper.scrape_resource(), list)
-    scrapper._titles_count = 10
-    assert_equal(len(scrapper.scrape_resource()), scrapper.titles_count)
-    scrapper._titles_count = 15
-    assert_equal(len(scrapper.scrape_resource()), scrapper.titles_count)
+        final_scraped_document = self._scrapper()
 
-
-@httpretty.activate
-@with_setup(create_scrapper_instance)
-@with_setup(create_fake_requests_mock_data)
-def test_scrape_resource_return_data():
-    for resource in scrapper.resource_urls():
-        httpretty.register_uri(httpretty.GET, resource,
-                               body=test_data, content_type='text/html')
-    for elem in scrapper.scrape_resource():
-        # we can use 'all(...)' but then when a test fails, its less verbose
-        assert_true('title' in elem)
-        assert_true('url' in elem)
-        assert_true('scraped_at' in elem)
-
-
-@with_setup(create_scrapper_instance)
-def test_scrapper_should_translate():
-    assert_is_instance(scrapper.should_translate(), bool)
-
-
-# Real tests - do not comment out!
-@nottest
-def test_real_scrape_resource():
-    for r in Reuters(titles_count=20).scrape_resource():
-        print(r)
-
-
-@nottest
-def test_real_reuters_call():
-    r = Reuters(titles_count=15)
-    for e in r():
-        print(e)
+    @nose.tools.nottest
+    def real_test(self):
+        s = Reuters()
+        s()

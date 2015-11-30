@@ -16,13 +16,27 @@ An NLP based experimental project
 ```
     { _id: ...,
       scrapper: SCRAPPER_CLASS_NAME,
-      title: SCRAPPED_TITLE,
-      title_en: TRANSLATED_TO_EN_TITLE,
-      url: SCRAPPED_URL,
-      scraped_at: DATETIME_OBJECT
+      categories: [
+       {     title: SCRAPPED_TITLE,
+              category: A,
+              title_en: TRANSLATED_TO_EN_TITLE,
+              url: SCRAPPED_URL,
+              scraped_at: DATETIME_OBJECT 
+       },
+       {     title: SCRAPPED_TITLE,
+              category: Y,
+              title_en: TRANSLATED_TO_EN_TITLE,
+              url: SCRAPPED_URL,
+              scraped_at: DATETIME_OBJECT 
+       },       
+      ]
     }
 ```
-compound indexes on: _url_ ASCENDING, _scraped_at_ DESCENDING
+
+##### Details
+ * Compound indexes on: _url_ ASCENDING, _scraped_at_ DESCENDING.
+ * In case translation was made to _title_ then it will be stored in _title_en_.
+
 
 #### OS dependencies
 The following packages are required (names might be slightly different depending on the linux distro):
