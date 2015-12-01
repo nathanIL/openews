@@ -12,11 +12,8 @@ An NLP based experimental project
 
 ### Data Flow
 1. Scrappers ( _Scrapper_ implementation ) collecting the _data_ (titles).
-2. _data_ is stored to _raw_ collection as the following document schema:
-```
-    { _id: ...,
-      scrapper: SCRAPPER_CLASS_NAME,
-      categories: [
+2. _data_ is stored to _raw.SCRAPPER_NAME_ collection as the following document schema:
+```[
        {     title: SCRAPPED_TITLE,
               category: A,
               title_en: TRANSLATED_TO_EN_TITLE,
@@ -29,12 +26,11 @@ An NLP based experimental project
               url: SCRAPPED_URL,
               scraped_at: DATETIME_OBJECT 
        },       
-      ]
-    }
+    ]
 ```
 
 ##### Details
- * Compound indexes on: _url_ ASCENDING, _scraped_at_ DESCENDING.
+ * Compound indexe on: _url_ ASCENDING
  * In case translation was made to _title_ then it will be stored in _title_en_.
 
 

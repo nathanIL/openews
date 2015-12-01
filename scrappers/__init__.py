@@ -89,12 +89,11 @@ class Scrapper(metaclass=abc.ABCMeta):
         :param resources: return value of 'resource_urls' method.
         :return: a list of dicts ('data': requests.Response, category: str).
         """
-        threads = list()
-        for r in resources:
-            threads.append({'gthread': gevent.spawn(requests.get, r['url'], verify=False), 'category': r['category']})
-        gevent.joinall([t['gthread'] for t in threads])
-        return [{'data': r['gthread'].value, 'category': r['category']} for r in threads if
-                r['gthread'].ready() and r['gthread'].successful()]
+        def composite_request(url, category):
+            return {'response': requests.get(url, verify=False), 'category': category}
+        threads = [gevent.spawn(composite_request, r['url'], r['category']) for r in resources]
+        gevent.joinall(threads)
+        return [{'data': t.value['response'], 'category': t.value['category']} for t in threads]
 
     def __call__(self, *args, **kwargs):
         """

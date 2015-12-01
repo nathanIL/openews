@@ -22,6 +22,6 @@ class BBC(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
                 {'category': 'Africa', 'url': 'http://feeds.bbci.co.uk/news/world/africa/rss.xml'},
                 {'category': 'Europe', 'url': 'http://feeds.bbci.co.uk/news/world/europe/rss.xml'},
                 {'category': 'Latin America', 'url': 'http://feeds.bbci.co.uk/news/world/latin_america/rss.xml'},
-                {'cateogry': 'Top Stories', 'url': 'http://feeds.bbci.co.uk/news/rss.xml'},
-                {'cateogry': 'World', 'url': 'http://feeds.bbci.co.uk/news/world/rss.xml'},
-                {'cateogry': 'Politics', 'url': 'http://feeds.bbci.co.uk/news/politics/rss.xml'}]
+                {'category': 'Top Stories', 'url': 'http://feeds.bbci.co.uk/news/rss.xml'},
+                {'category': 'World', 'url': 'http://feeds.bbci.co.uk/news/world/rss.xml'},
+                {'category': 'Politics', 'url': 'http://feeds.bbci.co.uk/news/politics/rss.xml'}]
