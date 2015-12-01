@@ -28,6 +28,7 @@ An NLP based experimental project
        },       
     ]
 ```
+_raw.SCRAPPER_NAME_ means a nested collection in _raw_ collection with the name of the scrapper class (_SCRAPPER_NAME) in lower case letters.
 
 ##### Details
  * Compound indexe on: _url_ ASCENDING

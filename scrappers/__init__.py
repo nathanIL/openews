@@ -24,6 +24,13 @@ class Scrapper(metaclass=abc.ABCMeta):
     # TODO: Use 'PYTHONWARNINGS' env to disable SSL warnings(??): https://urllib3.readthedocs.org/en/latest/security.html
 
     def __init__(self, titles_count=None, mongo_client_class=MongoClient, *args, **kwargs):
+        """
+        :param titles_count: How many titles to scrape from each source. None is all available.
+        :param mongo_client_class: The MongoDB client class. defaults to MongoClient (so we can inject this if needed - unit testing for instance)
+        :param args:
+        :param kwargs:
+        :return:
+        """
         super().__init__(*args, **kwargs)
         self._titles_count = titles_count
         self._mongo_client_class = mongo_client_class
@@ -83,14 +90,17 @@ class Scrapper(metaclass=abc.ABCMeta):
 
         return data
 
-    def get_resources(self, resources):
+    @staticmethod
+    def get_resources(resources):
         """
         Performs the HTTP request to the provided resource.
         :param resources: return value of 'resource_urls' method.
         :return: a list of dicts ('data': requests.Response, category: str).
         """
+
         def composite_request(url, category):
             return {'response': requests.get(url, verify=False), 'category': category}
+
         threads = [gevent.spawn(composite_request, r['url'], r['category']) for r in resources]
         gevent.joinall(threads)
         return [{'data': t.value['response'], 'category': t.value['category']} for t in threads]
