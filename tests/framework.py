@@ -1,3 +1,6 @@
+"""
+Some utilities, ABCs and other base classes used in the testing phase.
+"""
 import nose.tools
 import os
 import os.path
@@ -7,8 +10,8 @@ import mongomock
 
 
 class ScrapperTestCase(metaclass=abc.ABCMeta):
-    def create_scrapper_instance(self):
-        klass = self.scrapper_class()
+    def create_scrapper_instance(self, *args, **kwargs):
+        klass = self.scrapper_class(*args, **kwargs)
         return klass(mongo_client_class=mongomock.MongoClient)
 
     @abc.abstractproperty

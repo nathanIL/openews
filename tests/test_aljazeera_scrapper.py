@@ -1,6 +1,6 @@
 from scrappers.plugins.aljazeera import ALJazeera
 from unittest.mock import MagicMock
-from tests.rss_utils import RSSTestCase
+from tests.framework import RSSTestCase
 import unittest
 
 
