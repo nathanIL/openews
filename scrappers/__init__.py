@@ -6,10 +6,10 @@ import requests
 import sys
 import gevent
 import gevent.monkey
-import os
+import pymongo
+import pymongo.errors
 from textblob import TextBlob
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
 from server import server_app
 
 gevent.monkey.patch_socket()
@@ -105,24 +105,40 @@ class Scrapper(metaclass=abc.ABCMeta):
         gevent.joinall(threads)
         return [{'data': t.value['response'], 'category': t.value['category']} for t in threads]
 
+    def _store_to_db(self, documents):
+        """
+        Internal utility method to store data in the database
+        """
+        # TODO: Catch more specific exceptions (??)
+        inserted = []
+        try:
+            client = self._mongo_client_class(host=server_app.config['MONGO_HOST'], port=server_app.config['MONGO_PORT'])
+            raw_db = client[server_app.config['MONGO_RAW_COLLECTION']]
+            if self.__class__.__name__.lower() not in client.database_names():
+                raw_db[self.__class__.__name__.lower()].create_index([('url', pymongo.ASCENDING)], unique=True)
+            for doc in documents['categories']:
+                try:
+                    inserted.append(raw_db[self.__class__.__name__.lower()].insert(doc))
+                except pymongo.errors.DuplicateKeyError:
+                    pass
+                except pymongo.errors.PyMongoError:
+                    raise
+        except pymongo.errors.AutoReconnect as e:
+            print("[MongoDB][WARNING]: %s" % e, file=sys.stderr)
+        except pymongo.errors.ConnectionFailure as e:
+            print("[MongoDB][FATAL]: %s" % e, file=sys.stderr)
+            sys.exit(1)
+        finally:
+            return inserted
+
     def __call__(self, *args, **kwargs):
         """
         This is called by RQ workers and performs the real work: scrape, normalization, and stores to DB.
         :param args:
         :param kwargs:
-        :return: the normalized and translated list of documents (list of dicts).
+        :return: the insert documents
         """
-        # TODO: Perform the actual DB update
-        translated_data = []
-        try:
-            raw = self._mongo_client_class(host=server_app.config['MONGO_HOST'], port=server_app.config['MONGO_PORT'])[
-                server_app.config['MONGO_RAW_COLLECTION']]
-            translated_data = self.translate_data(self.scrape_resources())
-            translated_data['scrapper'] = self.__class__.__name__
-        except PyMongoError as me:
-            print("[MongoDB][Fatal Error]: %s" % me, file=sys.stderr)
-            sys.exit(1)
-        except Exception as e:
-            print(e)
-        finally:
-            return translated_data
+        transformed_data = []
+        transformed_data = self.translate_data(self.scrape_resources())
+        transformed_data['scrapper'] = self.__class__.__name__
+        return self._store_to_db(transformed_data)

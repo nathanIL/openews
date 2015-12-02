@@ -1,11 +1,26 @@
 import nose.tools
-import unittest
 import os
 import os.path
 import httpretty
+import abc
+import mongomock
 
 
-class RSSTestCase(object):
+class ScrapperTestCase(metaclass=abc.ABCMeta):
+    def create_scrapper_instance(self):
+        klass = self.scrapper_class()
+        return klass(mongo_client_class=mongomock.MongoClient)
+
+    @abc.abstractproperty
+    def scrapper_class(self):
+        """
+        Test cases must implement this and return the test scrapper class
+        :return: a test scrapper class.
+        """
+        pass
+
+
+class RSSTestCase(ScrapperTestCase):
     @nose.tools.nottest
     def mock_resource_urls(self):
         data = []
@@ -19,7 +34,7 @@ class RSSTestCase(object):
         return data
 
     def test_scrapper_instance(self):
-        self.assertIsInstance(self._scrapper, self._scrapper_class)
+        self.assertIsInstance(self._scrapper, self.scrapper_class())
 
     @httpretty.activate
     def test_scrape_resource(self):
@@ -51,5 +66,5 @@ class RSSTestCase(object):
 
     @nose.tools.nottest
     def real_test(self):
-        s = self._scrapper_class()
+        s = self.scrapper_class()
         s()

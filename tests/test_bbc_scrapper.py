@@ -5,9 +5,11 @@ import unittest
 
 
 class TestBBC(unittest.TestCase, RSSTestCase):
+    def scrapper_class(self):
+        return BBC
+
     def setUp(self):
-        self._scrapper_class = BBC
-        self._scrapper = self._scrapper_class()
+        self._scrapper = self.create_scrapper_instance()
         self._fixture = 'bbc'
         self._data = self.mock_resource_urls()
         self._title_counts = tuple([10, 15])

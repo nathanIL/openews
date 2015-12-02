@@ -28,7 +28,7 @@ An NLP based experimental project
        },       
     ]
 ```
-_raw.SCRAPPER_NAME_ means a nested collection in _raw_ collection with the name of the scrapper class (_SCRAPPER_NAME) in lower case letters.
+_raw.SCRAPPER_NAME_ means a nested collection in _raw_ collection with the name of the scrapper class ( _SCRAPPER_NAME_ ) in lower case letters.
 
 ##### Details
  * Compound indexe on: _url_ ASCENDING
@@ -44,4 +44,7 @@ The following packages are required (names might be slightly different depending
 
 #### Testing
 
-**Unit tests** are located under the _tests_ folder.
+**Unit tests** are using _nose_ located under the _tests_ folder, can be exectuded by running:
+```
+$ nosetests -v -s tests/
+```

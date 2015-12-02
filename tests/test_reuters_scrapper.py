@@ -5,11 +5,13 @@ import unittest
 
 
 class TestReuters(unittest.TestCase, RSSTestCase):
+    def scrapper_class(self):
+        return Reuters
+
     def setUp(self):
-        self._scrapper_class = Reuters
-        self._scrapper = self._scrapper_class()
+        self._scrapper = self.create_scrapper_instance()
         self._fixture = 'reuters'
         self._data = self.mock_resource_urls()
-        self._title_counts = tuple([10,15,30])
+        self._title_counts = tuple([10, 15, 30])
 
         self._scrapper.resource_urls = MagicMock(return_value=self._data)

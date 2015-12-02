@@ -5,9 +5,11 @@ import unittest
 
 
 class TestAljazeera(unittest.TestCase, RSSTestCase):
+    def scrapper_class(self):
+        return ALJazeera
+
     def setUp(self):
-        self._scrapper_class = ALJazeera
-        self._scrapper = self._scrapper_class()
+        self._scrapper = self.create_scrapper_instance()
         self._fixture = 'aljazeera'
         self._data = self.mock_resource_urls()
         self._title_counts = tuple([10, 15])
