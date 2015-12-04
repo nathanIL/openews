@@ -5,3 +5,5 @@ MONGO_DBNAME = 'openews'
 MONGO_RAW_COLLECTION = 'raw'
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379

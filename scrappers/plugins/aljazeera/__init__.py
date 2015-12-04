@@ -3,7 +3,7 @@ import scrappers.mixins
 
 
 class ALJazeera(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
-    """AL Jazeera RSS feed (http://www.aljazeera.com/xml/rss/all.xml) scrapper.
+    """AL Jazeera RSS feed scrapper.
     """
 
     def __init__(self, *args, **kwargs):
