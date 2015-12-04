@@ -12,6 +12,10 @@ class Rotter(scrappers.Scrapper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    @staticmethod
+    def disabled():
+        return True
+
     def should_translate(self):
         """
         Hebrew posts by majority.

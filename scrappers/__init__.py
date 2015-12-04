@@ -35,6 +35,15 @@ class Scrapper(metaclass=abc.ABCMeta):
         self._titles_count = titles_count
         self._mongo_client_class = mongo_client_class
 
+    @staticmethod
+    def disabled():
+        """
+        If this scrapper is disabled or not.
+        :return: True or False
+        """
+        return False
+
+
     @property
     def titles_count(self):
         """
