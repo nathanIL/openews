@@ -22,8 +22,15 @@ class ScrapperTestCase(metaclass=abc.ABCMeta):
         """
         pass
 
+    def test_disabled(self):
+        self.assertIsInstance(self.create_scrapper_instance().disabled(), int)
+
 
 class RSSTestCase(ScrapperTestCase):
+    """
+    A mixin to be used by any RSS based scrapper test.
+    """
+
     @nose.tools.nottest
     def mock_resource_urls(self):
         data = []
