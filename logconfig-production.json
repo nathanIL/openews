@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "formatters": {
+    "standard": {
+      "format": "[%(asctime)s][%(filename)s][%(levelname)s]: %(message)s"
+    }
+  },
+  "handlers": {
+    "root_rotating_file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "filename": "openews_server.log",
+      "maxBytes": 128000,
+      "backupCount": 10,
+      "formatter": "standard"
+    },
+    "scrappers_rotating_file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "filename": "openews_scrappers.log",
+      "maxBytes": 128000,
+      "backupCount": 10,
+      "formatter": "standard"
+    }
+  },
+  "loggers": {
+    "openews.server": {
+      "level": "DEBUG",
+      "handlers": [
+        "root_rotating_file"
+      ],
+      "propagate": true
+    },
+    "openews.scrappers": {
+      "level": "DEBUG",
+      "handlers": [
+        "scrappers_rotating_file"
+      ],
+      "propagate": true
+    }
+  }
+}

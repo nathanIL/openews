@@ -7,6 +7,7 @@ Project execution / entry point for all parts:
 from flask.ext.script import Manager, Server
 from scrappers.commands import Scrapper
 from server import server_app
+import log
 
 manager = Manager(server_app)
 

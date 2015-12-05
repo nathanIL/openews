@@ -8,6 +8,7 @@ import gevent
 import gevent.monkey
 import pymongo
 import pymongo.errors
+import logging
 from textblob import TextBlob
 from pymongo import MongoClient
 from server import server_app
@@ -34,6 +35,15 @@ class Scrapper(metaclass=abc.ABCMeta):
         super().__init__(*args, **kwargs)
         self._titles_count = titles_count
         self._mongo_client_class = mongo_client_class
+        self.logger().debug("Creating: %s", self)
+
+    @staticmethod
+    def logger():
+        """
+        Scrapper's specicic logger instance. Use this to log inside scrappers.
+        :return: Returns a logging.Logger('openews.scrappers') instance.
+        """
+        return logging.getLogger('openews.scrappers')
 
     @staticmethod
     def disabled():
@@ -42,7 +52,6 @@ class Scrapper(metaclass=abc.ABCMeta):
         :return: True or False
         """
         return False
-
 
     @property
     def titles_count(self):
@@ -121,24 +130,38 @@ class Scrapper(metaclass=abc.ABCMeta):
         # TODO: Catch more specific exceptions (??)
         inserted = []
         try:
-            client = self._mongo_client_class(host=server_app.config['MONGO_HOST'], port=server_app.config['MONGO_PORT'])
+            client = self._mongo_client_class(host=server_app.config['MONGO_HOST'],
+                                              port=server_app.config['MONGO_PORT'])
             raw_db = client[server_app.config['MONGO_RAW_COLLECTION']]
             if self.__class__.__name__.lower() not in client.database_names():
+                self.logger().debug("Creating unique index [%s] on: %s", 'url', self.__class__.__name__.lower())
                 raw_db[self.__class__.__name__.lower()].create_index([('url', pymongo.ASCENDING)], unique=True)
             for doc in documents['categories']:
                 try:
+                    self.logger().debug("[%s]: Inserting document: %s", self.__class__.__name__.lower(), doc)
                     inserted.append(raw_db[self.__class__.__name__.lower()].insert(doc))
                 except pymongo.errors.DuplicateKeyError:
+                    self.logger().debug("[%s]: Document [%s] already exists, skipping", self.__class__.__name__.lower(),
+                                        doc)
                     pass
                 except pymongo.errors.PyMongoError:
                     raise
         except pymongo.errors.AutoReconnect as e:
-            print("[MongoDB][WARNING]: %s" % e, file=sys.stderr)
+            self.logger().warning("MongoDB AutoReconnect warning: %s", e)
         except pymongo.errors.ConnectionFailure as e:
-            print("[MongoDB][FATAL]: %s" % e, file=sys.stderr)
+            self.logger().exception("MongoDB Connection Failure")
             sys.exit(1)
         finally:
             return inserted
+
+    def __str__(self):
+        return '<<{0}(titles_count={1}, mongo_client_class={2}, should_translate={3}, encoding={4}, resources={5})>>'.format(
+            self.__class__.__name__,
+            self.titles_count,
+            self._mongo_client_class,
+            self.should_translate(),
+            self.encoding(),
+            ','.join([e['url'] for e in self.resource_urls()]))
 
     def __call__(self, *args, **kwargs):
         """

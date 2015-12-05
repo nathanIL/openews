@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "formatters": {
+    "standard": {
+      "format": "[%(asctime)s][%(filename)s][%(levelname)s]: %(message)s"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "standard"
+    }
+  },
+  "loggers": {
+    "openews.server": {
+      "level": "DEBUG",
+      "handlers": [
+        "console"
+      ],
+      "propagate": true
+    },
+    "openews.scrappers": {
+      "level": "DEBUG",
+      "handlers": [
+        "console"
+      ],
+      "propagate": true
+    }
+  }
+}

@@ -46,5 +46,6 @@ The following packages are required (names might be slightly different depending
 
 **Unit tests** are using _nose_ located under the _tests_ folder, can be exectuded by running:
 ```
+$ export OPENEWS_DEVELOPMENT_ENV="true";
 $ nosetests -v -s tests/
 ```

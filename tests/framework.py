@@ -7,6 +7,7 @@ import os.path
 import httpretty
 import abc
 import mongomock
+import log
 
 
 class ScrapperTestCase(metaclass=abc.ABCMeta):

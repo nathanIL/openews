@@ -1,11 +1,11 @@
 from datetime import datetime
 from lxml import etree
-import sys
 
 
 class RSSScrapper(object):
     """
     Mixin for RSS based resources. most (or all?) have the same structure.
+    This mixin requires the inheriting class to also inherit from scrappers.Scrapper ABC.
     """
 
     def scrape_resources(self):
@@ -15,6 +15,7 @@ class RSSScrapper(object):
         scrapped_count = 0
         try:
             for data in self.get_resources(resource_urls):
+                self.logger().debug("Scrapping data from resource: %s", data)
                 # TODO: should we really use 'replace' here?
                 root = etree.XML(data['data'].text.encode(self.encoding(), errors='replace'), parser)
                 for item in root.xpath('//channel/item'):
@@ -27,6 +28,6 @@ class RSSScrapper(object):
                     if scrapped_count and scrapped_count == self.titles_count: break
                 if scrapped_count and scrapped_count == self.titles_count: break
         except Exception as e:
-            print("[ERROR]: Could not properly scrape that data: %s" % str(e), file=sys.stderr)
+            self.logger().exception("Could not properly scrape resources")
         finally:
             return scraped_data
