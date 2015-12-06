@@ -41,6 +41,8 @@ The following packages are required (names might be slightly different depending
 * libxml2-dev 
 * libxslt1-dev 
 * python-dev
+* liblas-devel.x86_64 (aka: libblas-dev)
+* lapack-devel.x86_64 (aka liblapack-dev)
 
 #### Testing
 
