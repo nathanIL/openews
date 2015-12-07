@@ -9,14 +9,14 @@
     "root_rotating_file": {
       "class": "logging.handlers.RotatingFileHandler",
       "filename": "openews_server.log",
-      "maxBytes": 128000,
+      "maxBytes": 1048576,
       "backupCount": 10,
       "formatter": "standard"
     },
     "scrappers_rotating_file": {
       "class": "logging.handlers.RotatingFileHandler",
       "filename": "openews_scrappers.log",
-      "maxBytes": 128000,
+      "maxBytes": 1048576,
       "backupCount": 10,
       "formatter": "standard"
     }

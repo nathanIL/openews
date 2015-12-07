@@ -157,7 +157,7 @@ class Scrapper(metaclass=abc.ABCMeta):
     def __str__(self):
         return '<<{0}(titles_count={1}, mongo_client_class={2}, should_translate={3}, encoding={4}, resources={5})>>'.format(
             self.__class__.__name__,
-            self.titles_count,
+            self.titles_count or 'All',
             self._mongo_client_class,
             self.should_translate(),
             self.encoding(),
@@ -170,7 +170,6 @@ class Scrapper(metaclass=abc.ABCMeta):
         :param kwargs:
         :return: the insert documents
         """
-        transformed_data = []
         transformed_data = self.translate_data(self.scrape_resources())
         transformed_data['scrapper'] = self.__class__.__name__
         return self._store_to_db(transformed_data)
