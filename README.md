@@ -2,33 +2,39 @@
 [![Coverage Status](https://coveralls.io/repos/nathanIL/openews/badge.svg?branch=master&service=github)](https://coveralls.io/github/nathanIL/openews?branch=master)
 # Openews
 
-An NLP based experimental project
+An NLP (Natural Language Processing) based experimental project aimed to bundle news from various sources.
 
-#### Architecture
-### Components
+## Architecture
+#### Components
 1. MongoDB - database layer ( _openews_ database )
-2. Redis - queuing Scrappers.
+2. Redis - queuing scrapper jobs.
 3. Flask - REST / Web services.
 
-### Data Flow
-1. Scrappers ( _Scrapper_ implementation ) collecting the _data_ (titles).
-2. _data_ is stored to _raw.SCRAPPER_NAME_ collection as the following document schema:
-```[
-       {     title: SCRAPPED_TITLE,
-              category: A,
-              title_en: TRANSLATED_TO_EN_TITLE,
-              url: SCRAPPED_URL,
-              scraped_at: DATETIME_OBJECT 
-       },
-       {     title: SCRAPPED_TITLE,
-              category: Y,
-              title_en: TRANSLATED_TO_EN_TITLE,
-              url: SCRAPPED_URL,
-              scraped_at: DATETIME_OBJECT 
-       },       
-    ]
+#### Concepts
+* _Scrapper_: New collector.
+* _DataProcessor_: Processes raw data collected by scrappers and structure it (this is the NLP part). 
+* _Job_: A Queued Scrapper.
+* _Worker_: A Python process running and waiting for _Jobs_ to be added to the queue, then execute them.
+* _Server_: A RESTful web server managing all the services.
+
+#### Data Flow
+1. Scrappers are queued by _rq_ as jobs in redis to the _jobs_ queue once every X minutes (scheduled by _cron_ or 
+equivalent method).
+2. When the jobs are executed by a worker, the scrappers begin collecting the _data_ (news) from the various resources, 
+each collects its own resources asynchronously ( _gevent_ ).
+3. Each scrapper stores its scrapped data in a nested document inside _raw_ collection, the nested object is named as
+the scrapper class name in lower case letters. A typical scrapper document has the following fields:
 ```
-_raw.SCRAPPER_NAME_ means a nested collection in _raw_ collection with the name of the scrapper class ( _SCRAPPER_NAME_ ) in lower case letters.
+{
+        category: string,
+        title: string,
+        url: string,
+        scraped_at: datetime.utcnow()
+}
+```
+4. DataProcessors are queued by _rq_ as jobs in redis to the _process_ queue once every T minutes (scheduled by _cron_ 
+or equivalent method).
+
 
 ##### Details
  * Compound indexe on: _url_ ASCENDING
@@ -47,6 +53,21 @@ The following packages are required (names might be slightly different depending
 #### Testing
 
 **Unit tests** are using _nose_ located under the _tests_ folder, can be exectuded by running:
+
+1. First create a _virtualenv_:
+```
+$ virtualenv -p python3 venv
+```
+2. Load the virtual environment ( _virtualenv_ ):
+```
+$ source venv/bin/activate
+```
+
+3. Install all the development dependencies:
+```
+$ pip install -r requirements-dev.txt
+```
+4. Run the test suite:
 ```
 $ export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/; unset OPENEWS_DEVELOPMENT_ENV;
 ```
