@@ -40,7 +40,7 @@ class Scrapper(metaclass=abc.ABCMeta):
     @staticmethod
     def logger():
         """
-        Scrapper's specicic logger instance. Use this to log inside scrappers.
+        Scrapper's specific logger instance. Use this to log inside scrappers.
         :return: Returns a logging.Logger('openews.scrappers') instance.
         """
         return logging.getLogger('openews.scrappers')

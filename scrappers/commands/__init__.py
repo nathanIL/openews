@@ -9,11 +9,16 @@ class Scrapper(Command):
     Manage scrappers and scrapper's worker.
     """
 
-    def __init__(self, redis_host, redis_port):
+    def __init__(self, redis_host, redis_port, jobs_queue):
         super().__init__()
+        self._jobs_queue = jobs_queue
         redis = Redis(host=redis_host, port=redis_port)
         self._scrappers = {s.__name__: s for s in scrapper_classes() if not s.disabled()}
-        self._queue = Queue(connection=redis)
+        self._queue = Queue(self.jobs_queue_name, connection=redis)
+
+    @property
+    def jobs_queue_name(self):
+        return self._jobs_queue
 
     def get_options(self):
         return [Group(Option('--list', dest='list_scrappers', action='store_true', help='List available scrappers'),
@@ -33,13 +38,16 @@ class Scrapper(Command):
             for i, s in enumerate(self._scrappers.values(), start=1):
                 print("\t%d - %s: %s" % (i, s.__name__, s.__doc__.splitlines()[0]))
         elif options['queue_scrapper']:
+            print(" Queuing to redis job queue: %s\n" % self.jobs_queue_name)
             print("\t * Queueing: %s" % options['queue_scrapper'])
             job = self._queue.enqueue(self._scrappers.get(options['queue_scrapper'])(), result_ttl=300)
             print("\t   Queued Job ID: %s" % job.get_id())
         elif options['queue_all']:
+            print(" Queuing to redis job queue: %s\n" % self.jobs_queue_name)
             for scrapper in self._scrappers.values():
                 print("\t * Queueing: %s" % scrapper.__name__)
                 job = self._queue.enqueue(scrapper(), result_ttl=300)
                 print("\t   Queued Job ID: %s" % job.get_id())
         elif options['run_worker']:
             pass
+

@@ -6,7 +6,7 @@ An NLP (Natural Language Processing) based experimental project aimed to bundle 
 
 ## Architecture
 #### Components
-1. MongoDB - database layer ( _openews_ database )
+1. MongoDB - database layer.
 2. Redis - queuing scrapper jobs.
 3. Flask - REST / Web services.
 
@@ -18,8 +18,8 @@ An NLP (Natural Language Processing) based experimental project aimed to bundle 
 * _Server_: A RESTful web server managing all the services.
 
 #### Data Flow
-1. Scrappers are queued by _rq_ as jobs in redis to the _jobs_ queue once every X minutes (scheduled by _cron_ or 
-equivalent method).
+1. Scrappers are queued by _rq_ as jobs in redis to the **_scrapper_jobs_** queue once every X minutes (scheduled by 
+_cron_ or equivalent method).
 2. When the jobs are executed by a worker, the scrappers begin collecting the _data_ (news) from the various resources, 
 each collects its own resources asynchronously ( _gevent_ ).
 3. Each scrapper stores its scrapped data in a nested document inside _raw_ collection, the nested object is named as
@@ -32,8 +32,8 @@ the scrapper class name in lower case letters. A typical scrapper document has t
         scraped_at: datetime.utcnow()
 }
 ```
-4. DataProcessors are queued by _rq_ as jobs in redis to the _process_ queue once every T minutes (scheduled by _cron_ 
-or equivalent method).
+4. DataProcessors are queued by _rq_ as jobs in redis to the **_nlp_process_** queue once every T minutes (scheduled by 
+_cron_ or equivalent method).
 
 
 ##### Details
