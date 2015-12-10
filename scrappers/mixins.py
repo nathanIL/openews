@@ -20,10 +20,14 @@ class RSSScrapper(object):
                 root = etree.XML(data['data'].text.encode(self.encoding(), errors='replace'), parser)
                 for item in root.xpath('//channel/item'):
                     title = item.xpath('title')[0].text.strip()
+                    if self.skip_scrape(title):
+                        self.logger().debug(
+                            "Skipping this title {0} resource due to a predefined scrapper rule".format(title))
+                        continue
                     url = item.xpath('link')[0].text.strip()
                     scraped_at = datetime.utcnow()
                     scraped_data['categories'].append(
-                        {'category': data['category'], 'title': title, 'url': url, 'scraped_at': scraped_at})
+                            {'category': data['category'], 'title': title, 'url': url, 'scraped_at': scraped_at})
                     scrapped_count += 1
                     if scrapped_count and scrapped_count == self.titles_count: break
                 if scrapped_count and scrapped_count == self.titles_count: break

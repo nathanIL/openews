@@ -85,6 +85,17 @@ class Scrapper(metaclass=abc.ABCMeta):
         """
         pass
 
+    def skip_scrape(self, title):
+        """
+        This method is called by 'scrape_resource' and receives the scraped news title, it then decides whether to
+        scrape it or not.
+        Some sources have some "noise" news, such as country profiles and such, we don't need these.
+        It should be overridden by classes want to exclude some titles from a resource by any means needed.
+        :param title: the title (str) of the scraped resource.
+        :return: True in case we are skipping this news, False otherwise.
+        """
+        return False
+
     @abc.abstractmethod
     def scrape_resources(self):
         """
@@ -156,12 +167,12 @@ class Scrapper(metaclass=abc.ABCMeta):
 
     def __str__(self):
         return '<<{0}(titles_count={1}, mongo_client_class={2}, should_translate={3}, encoding={4}, resources={5})>>'.format(
-            self.__class__.__name__,
-            self.titles_count or 'All',
-            self._mongo_client_class,
-            self.should_translate(),
-            self.encoding(),
-            ','.join([e['url'] for e in self.resource_urls()]))
+                self.__class__.__name__,
+                self.titles_count or 'All',
+                self._mongo_client_class,
+                self.should_translate(),
+                self.encoding(),
+                ','.join([e['url'] for e in self.resource_urls()]))
 
     def __call__(self, *args, **kwargs):
         """
