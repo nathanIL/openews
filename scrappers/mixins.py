@@ -21,16 +21,16 @@ class RSSScrapper(object):
                 for item in root.xpath('//channel/item'):
                     title = item.xpath('title')[0].text.strip()
                     if self.skip_scrape(title):
-                        self.logger().debug(
-                            "Skipping this title {0} resource due to a predefined scrapper rule".format(title))
+                        self.logger().debug("Skipping this title {0} resource due to a predefined scrapper rule".format(title))
                         continue
                     url = item.xpath('link')[0].text.strip()
                     scraped_at = datetime.utcnow()
-                    scraped_data['categories'].append(
-                            {'category': data['category'], 'title': title, 'url': url, 'scraped_at': scraped_at})
+                    scraped_data['categories'].append({'category': data['category'], 'title': title, 'url': url, 'scraped_at': scraped_at})
                     scrapped_count += 1
-                    if scrapped_count and scrapped_count == self.titles_count: break
-                if scrapped_count and scrapped_count == self.titles_count: break
+                    if scrapped_count and scrapped_count == self.titles_count:
+                        break
+                if scrapped_count and scrapped_count == self.titles_count:
+                    break
         except Exception as e:
             self.logger().exception("Could not properly scrape resources")
         finally:

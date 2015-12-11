@@ -113,7 +113,8 @@ class Scrapper(metaclass=abc.ABCMeta):
         :return: data with added key (title_en) holding the translated data (in case translated has been performed).
         """
         # TODO: Fix for multiple categories (NOT WORKING NOW)
-        if not self.should_translate(): return data
+        if not self.should_translate():
+            return data
         for elem in data:
             elem['title_en'] = TextBlob(elem['title']).translate(to='en')
 
@@ -166,13 +167,13 @@ class Scrapper(metaclass=abc.ABCMeta):
             return inserted
 
     def __str__(self):
-        return '<<{0}(titles_count={1}, mongo_client_class={2}, should_translate={3}, encoding={4}, resources={5})>>'.format(
-                self.__class__.__name__,
-                self.titles_count or 'All',
-                self._mongo_client_class,
-                self.should_translate(),
-                self.encoding(),
-                ','.join([e['url'] for e in self.resource_urls()]))
+        return '<<{0}(titles_count={1}, mongo_client_class={2}, should_translate={3}, encoding={4}, resources={5})>>' \
+            .format(self.__class__.__name__,
+                    self.titles_count or 'All',
+                    self._mongo_client_class,
+                    self.should_translate(),
+                    self.encoding(),
+                    ','.join([e['url'] for e in self.resource_urls()]))
 
     def __call__(self, *args, **kwargs):
         """

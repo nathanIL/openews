@@ -51,3 +51,4 @@ class Scrapper(Command):
         elif options['run_worker']:
             pass
 
+
