@@ -35,6 +35,7 @@ class Scrapper(metaclass=abc.ABCMeta):
         super().__init__(*args, **kwargs)
         self._titles_count = titles_count
         self._mongo_client_class = mongo_client_class
+        self._skipped_titles = set()
         self.logger().debug("Creating: %s", self)
 
     @staticmethod
@@ -52,6 +53,31 @@ class Scrapper(metaclass=abc.ABCMeta):
         :return: True or False
         """
         return False
+
+    @property
+    def skipped_titles(self):
+        """The skipped titles set.
+        :return: a set() object holding the skipped titles
+        """
+        return set(self._skipped_titles)
+
+    def skipping_rules(self, title):
+        """
+       This method is called by 'should_skip_scrape' and receives the scraped news title, it then decides whether to
+       scrape it or not based on the provided rules in this method.
+       Some sources have some "noise" news, such as country profiles and such, we don't need these.
+       It should optionally be overridden by classes want to exclude some titles from a scraped resource.
+       :param title: the title (str) of the scraped resource.
+       :return: True in case we are skipping this news, False otherwise.
+       """
+        return False
+
+    def should_skip_scrape(self, title):
+        if self.skipping_rules(title):
+            self._skipped_titles.add(title)
+            return True
+        else:
+            return False
 
     @property
     def titles_count(self):
@@ -84,17 +110,6 @@ class Scrapper(metaclass=abc.ABCMeta):
         :return:
         """
         pass
-
-    def skip_scrape(self, title):
-        """
-        This method is called by 'scrape_resource' and receives the scraped news title, it then decides whether to
-        scrape it or not.
-        Some sources have some "noise" news, such as country profiles and such, we don't need these.
-        It should be overridden by classes want to exclude some titles from a resource by any means needed.
-        :param title: the title (str) of the scraped resource.
-        :return: True in case we are skipping this news, False otherwise.
-        """
-        return False
 
     @abc.abstractmethod
     def scrape_resources(self):

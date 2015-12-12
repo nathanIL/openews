@@ -15,13 +15,13 @@ class RSSScrapper(object):
         scrapped_count = 0
         try:
             for data in self.get_resources(resource_urls):
-                self.logger().debug("Scrapping data from resource: %s", data)
+                self.logger().debug("Begin scrapping data from resource: %s", data)
                 # TODO: should we really use 'replace' here?
                 root = etree.XML(data['data'].text.encode(self.encoding(), errors='replace'), parser)
                 for item in root.xpath('//channel/item'):
                     title = item.xpath('title')[0].text.strip()
-                    if self.skip_scrape(title):
-                        self.logger().debug("Skipping this title {0} resource due to a predefined scrapper rule".format(title))
+                    if self.should_skip_scrape(title):
+                        self.logger().debug("Skipping title ({0}) resource due to a predefined scrapper rule.".format(title))
                         continue
                     url = item.xpath('link')[0].text.strip()
                     scraped_at = datetime.utcnow()

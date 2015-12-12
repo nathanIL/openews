@@ -24,7 +24,7 @@ class ScrapperTestCase(metaclass=abc.ABCMeta):
         pass
 
     def test_disabled(self):
-        self.assertIsInstance(self.create_scrapper_instance().disabled(), int)
+        self.assertIsInstance(self.create_scrapper_instance().disabled(), bool)
 
 
 class RSSTestCase(ScrapperTestCase):
@@ -48,32 +48,35 @@ class RSSTestCase(ScrapperTestCase):
         self.assertIsInstance(self._scrapper, self.scrapper_class())
 
     @httpretty.activate
-    def test_scrape_resource(self):
+    def test_run_http_mocked_tests(self):
+        """Executed HTTP mocked tests"""
         for resource in self._scrapper.resource_urls():
             httpretty.register_uri(httpretty.GET, resource['url'],
                                    body=resource['data'], content_type=resource['mime'])
 
-        data = self._scrapper.scrape_resources()
-        self.assertIsInstance(data, dict)
-        self.assertEqual(len(data.keys()), 1)
-        self.assertTrue('categories' in data)
-
-    @httpretty.activate
-    def test_titles_count(self):
-        for resource in self._scrapper.resource_urls():
-            httpretty.register_uri(httpretty.GET, resource['url'],
-                                   body=resource['data'], content_type=resource['mime'])
+        scrape_resouces_data = self._scrapper.scrape_resources()
+        call_resouces_data = self._scrapper()
+        self.assertIsInstance(scrape_resouces_data, dict, "Is 'scrape_resouces' returns a dict object?")
+        self.assertEqual(len(scrape_resouces_data.keys()), 1,
+                         "Is 'scrape_resouces' returns a dict object with a single key?")
+        self.assertIn('categories', scrape_resouces_data, "Is 'scrape_resouces' return dict has a 'categories' key?")
+        self.assertIsInstance(call_resouces_data, list, "Is __call__() returns a list object?")
+        self.assertGreater(len(call_resouces_data), 0, "Is __call__() returns a non empty list object?")
         for cnt in self._title_counts:
             self._scrapper._titles_count = cnt
-            self.assertEqual(len(self._scrapper.scrape_resources().get('categories')), self._scrapper.titles_count)
+            scrape_cnt_count_resouces_data = self._scrapper.scrape_resources()
+            self.assertEqual(len(scrape_cnt_count_resouces_data.get('categories')), self._scrapper.titles_count,
+                             "Is titles count equals to tested count [{0}]?".format(cnt))
+        self.assertIsInstance(self._scrapper.skipped_titles, set,"Is 'skipped_titles' returns a set object?")
+        # If our scrapper actually implements 'skipping_rules' property, then it must has rules.
+        if 'skipping_rules' in self._scrapper.__class__.__dict__:
+            self.assertGreater(len(self._scrapper.skipped_titles), 0,
+                               "Is 'skipped_titles' have titles in it? (should have in this case)")
+        else:
+            self.assertEqual(len(self._scrapper.skipped_titles), 0,
+                             "Is 'skipped_titles' return count is == 0?")
 
-    @httpretty.activate
-    def test_call_(self):
-        for resource in self._scrapper.resource_urls():
-            httpretty.register_uri(httpretty.GET, resource['url'],
-                                   body=resource['data'], content_type=resource['mime'])
 
-        self._scrapper()
 
     @nose.tools.nottest
     def real_test(self):

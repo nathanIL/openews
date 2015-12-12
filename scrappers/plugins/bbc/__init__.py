@@ -1,4 +1,5 @@
 import scrappers
+import re
 import scrappers.mixins
 
 
@@ -14,6 +15,18 @@ class BBC(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
 
     def encoding(self):
         return 'utf-8'
+
+    def skipping_rules(self, title):
+        """ BBC has some non relevant news titles that we want to skip, like country profiles, etc.
+        :param title: The scraped title
+        :return: True if we want to skip, otherwise False.
+        """
+        skip_regexs = [re.compile(r'.+country profile$', re.IGNORECASE),
+                       re.compile(r'^(?:\w+(?:\s+|-+)?\w*)\s+profile$', re.IGNORECASE),
+                       re.compile(r'.+profile\s*-\s*Overview$', re.IGNORECASE),
+                       re.compile(r'^Country profile:.+', re.IGNORECASE),
+                       re.compile(r'^VIDEO\s*:.+', re.IGNORECASE)]
+        return any([r.match(title) for r in skip_regexs])
 
     def resource_urls(self):
         return [{'category': 'Middle East', 'url': 'http://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
