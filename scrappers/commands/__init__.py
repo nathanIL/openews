@@ -2,11 +2,14 @@ from flask.ext.script import Command, Option, Group
 from scrappers.utils import scrapper_classes
 from rq import Queue
 from redis import Redis
+import subprocess
+import sys
+import warnings
 
 
 class Scrapper(Command):
     """
-    Manage scrappers and scrapper's worker.
+    Manage scrappers (workers, jobs) related tasks.
     """
 
     def __init__(self, redis_host, redis_port, jobs_queue):
@@ -49,6 +52,15 @@ class Scrapper(Command):
                 job = self._queue.enqueue(scrapper(), result_ttl=300)
                 print("\t   Queued Job ID: %s" % job.get_id())
         elif options['run_worker']:
-            pass
+            # Some issues with directly using rq.Worker, rq.Queue and rq.Connection, so for now calling
+            # rqworker directly.
+            try:
+                process_output = subprocess.check_call(['rqworker', '--burst', self.jobs_queue_name])
+                print(process_output)
+            except KeyboardInterrupt:
+                pass
+            except subprocess.CalledProcessError as e:
+                warnings.warn(e.output)
+                sys.exit(e.returncode)
 
 
