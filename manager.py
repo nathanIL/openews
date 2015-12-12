@@ -22,7 +22,9 @@ manager.add_command('scrapper',
 manager.add_command('language',
                     Language(redis_host=server_app.config['REDIS_HOST'],
                              redis_port=server_app.config['REDIS_PORT'],
-                             jobs_queue=server_app.config['NLP_PROCESS_QUEUE']))
+                             jobs_queue=server_app.config['NLP_PROCESS_QUEUE'],
+                             mongo_host=server_app.config['MONGO_HOST'],
+                             mongo_port=server_app.config['MONGO_PORT']))
 
 if __name__ == "__main__":
     manager.run()
