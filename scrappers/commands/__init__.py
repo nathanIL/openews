@@ -12,12 +12,11 @@ class Scrapper(Command):
     Manage scrappers (workers, jobs) related tasks.
     """
 
-    def __init__(self, redis_host, redis_port, jobs_queue):
+    def __init__(self, redis_conn_rec, jobs_queue):
         super().__init__()
         self._jobs_queue = jobs_queue
-        redis = Redis(host=redis_host, port=redis_port)
         self._scrappers = {s.__name__: s for s in scrapper_classes() if not s.disabled()}
-        self._queue = Queue(self.jobs_queue_name, connection=redis)
+        self._queue = Queue(self.jobs_queue_name, connection=Redis(**redis_conn_rec._asdict()))
 
     @property
     def jobs_queue_name(self):
@@ -62,5 +61,3 @@ class Scrapper(Command):
             except subprocess.CalledProcessError as e:
                 warnings.warn(e.output)
                 sys.exit(e.returncode)
-
-

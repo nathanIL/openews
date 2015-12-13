@@ -142,7 +142,7 @@ class Scrapper(metaclass=abc.ABCMeta):
         :param resources: return value of 'resource_urls' method.
         :return: a list of dicts ('data': requests.Response, category: str).
         """
-
+        # TODO: Once a request fails, re-queue it for another try.
         def composite_request(url, category):
             return {'response': requests.get(url, verify=False), 'category': category}
 
