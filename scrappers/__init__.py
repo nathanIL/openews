@@ -10,7 +10,7 @@ import pymongo
 import pymongo.errors
 import logging
 from textblob import TextBlob
-from pymongo import MongoClient
+from server.db import MongoClientContext, MongoConnectionRecord
 from server import server_app
 
 gevent.monkey.patch_socket()
@@ -24,7 +24,7 @@ class Scrapper(metaclass=abc.ABCMeta):
 
     # TODO: Use 'PYTHONWARNINGS' env to disable SSL warnings(??): https://urllib3.readthedocs.org/en/latest/security.html
 
-    def __init__(self, titles_count=None, mongo_client_class=MongoClient, *args, **kwargs):
+    def __init__(self, titles_count=None, *args, **kwargs):
         """
         :param titles_count: How many titles to scrape from each source. None is all available.
         :param mongo_client_class: The MongoDB client class. defaults to MongoClient (so we can inject this if needed - unit testing for instance)
@@ -33,10 +33,16 @@ class Scrapper(metaclass=abc.ABCMeta):
         :return:
         """
         super().__init__(*args, **kwargs)
+        self._mongo_conn_rec = MongoConnectionRecord(host=server_app.config['MONGO_HOST'],
+                                                     port=server_app.config['MONGO_PORT'],
+                                                     connect=False)
         self._titles_count = titles_count
-        self._mongo_client_class = mongo_client_class
         self._skipped_titles = set()
         self.logger().debug("Creating: %s", self)
+
+    @property
+    def mongo_connection_record(self):
+        return self._mongo_conn_rec
 
     @staticmethod
     def logger():
@@ -156,9 +162,7 @@ class Scrapper(metaclass=abc.ABCMeta):
         """
         # TODO: Catch more specific exceptions (??)
         inserted = []
-        try:
-            client = self._mongo_client_class(host=server_app.config['MONGO_HOST'],
-                                              port=server_app.config['MONGO_PORT'])
+        with MongoClientContext(self.mongo_connection_record) as client:
             raw_db = client[server_app.config['MONGO_RAW_COLLECTION']]
             if self.__class__.__name__.lower() not in client.database_names():
                 self.logger().debug("Creating unique index [%s] on: %s", 'url', self.__class__.__name__.lower())
@@ -173,19 +177,13 @@ class Scrapper(metaclass=abc.ABCMeta):
                     pass
                 except pymongo.errors.PyMongoError:
                     raise
-        except pymongo.errors.AutoReconnect as e:
-            self.logger().warning("MongoDB AutoReconnect warning: %s", e)
-        except pymongo.errors.ConnectionFailure as e:
-            self.logger().exception("MongoDB Connection Failure")
-            sys.exit(1)
-        finally:
-            return inserted
+
+        return inserted
 
     def __str__(self):
-        return '<<{0}(titles_count={1}, mongo_client_class={2}, should_translate={3}, encoding={4}, resources={5})>>' \
+        return '<<{0}(titles_count={1}, should_translate={2}, encoding={3}, resources={4})>>' \
             .format(self.__class__.__name__,
                     self.titles_count or 'All',
-                    self._mongo_client_class,
                     self.should_translate(),
                     self.encoding(),
                     ','.join([e['url'] for e in self.resource_urls()]))

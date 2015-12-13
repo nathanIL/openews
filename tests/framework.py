@@ -7,13 +7,16 @@ import os.path
 import httpretty
 import abc
 import mongomock
+import server.db
 import log
+
+server.db.MONGO_CLIENT_CLASS = mongomock.MongoClient
 
 
 class ScrapperTestCase(metaclass=abc.ABCMeta):
     def create_scrapper_instance(self, *args, **kwargs):
         klass = self.scrapper_class(*args, **kwargs)
-        return klass(mongo_client_class=mongomock.MongoClient)
+        return klass()
 
     @abc.abstractproperty
     def scrapper_class(self):
@@ -67,7 +70,7 @@ class RSSTestCase(ScrapperTestCase):
             scrape_cnt_count_resouces_data = self._scrapper.scrape_resources()
             self.assertEqual(len(scrape_cnt_count_resouces_data.get('categories')), self._scrapper.titles_count,
                              "Is titles count equals to tested count [{0}]?".format(cnt))
-        self.assertIsInstance(self._scrapper.skipped_titles, set,"Is 'skipped_titles' returns a set object?")
+        self.assertIsInstance(self._scrapper.skipped_titles, set, "Is 'skipped_titles' returns a set object?")
         # If our scrapper actually implements 'skipping_rules' property, then it must has rules.
         if 'skipping_rules' in self._scrapper.__class__.__dict__:
             self.assertGreater(len(self._scrapper.skipped_titles), 0,
@@ -76,9 +79,3 @@ class RSSTestCase(ScrapperTestCase):
             self.assertEqual(len(self._scrapper.skipped_titles), 0,
                              "Is 'skipped_titles' return count is == 0?")
 
-
-
-    @nose.tools.nottest
-    def real_test(self):
-        s = self.scrapper_class()
-        s()
