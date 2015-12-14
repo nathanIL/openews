@@ -19,7 +19,7 @@ class MongoClientContext(object):
 
     @property
     def logger(self):
-        return logging.getLogger('openews.scrappers')
+        return logging.getLogger('openews.server')
 
     def __enter__(self):
         return self._client

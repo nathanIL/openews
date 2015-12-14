@@ -3,15 +3,16 @@ A Scrapper instance is an entity that collects data from the resources.
 """
 import abc
 import requests
-import sys
 import gevent
 import gevent.monkey
 import pymongo
 import pymongo.errors
 import logging
+from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 from textblob import TextBlob
 from server.db import MongoClientContext, MongoConnectionRecord
 from server import server_app
+
 
 gevent.monkey.patch_socket()
 
@@ -141,20 +142,31 @@ class Scrapper(metaclass=abc.ABCMeta):
 
         return data
 
-    @staticmethod
-    def get_resources(resources):
+    def get_resources(self, resources):
         """
         Performs the HTTP request to the provided resource.
         :param resources: return value of 'resource_urls' method.
         :return: a list of dicts ('data': requests.Response, category: str).
         """
-        # TODO: Once a request fails, re-queue it for another try.
         def composite_request(url, category):
-            return {'response': requests.get(url, verify=False), 'category': category}
+            retries = 0
+            result = None
+
+            while retries <= 10:
+                try:
+                    self.logger().debug("GETting resource: %s" % url)
+                    response = requests.get(url, verify=False)
+                    result = {'response': response, 'category': category}
+                    break
+                except (ConnectionError, Timeout, TooManyRedirects):
+                    retries += 1
+                    self.logger().exception("Could not GET resource: %s" % url)
+
+            return result
 
         threads = [gevent.spawn(composite_request, r['url'], r['category']) for r in resources]
         gevent.joinall(threads)
-        return [{'data': t.value['response'], 'category': t.value['category']} for t in threads]
+        return [{'data': t.value['response'], 'category': t.value['category']} for t in threads if t.value is not None]
 
     def _store_to_db(self, documents):
         """
@@ -195,6 +207,7 @@ class Scrapper(metaclass=abc.ABCMeta):
         :param kwargs:
         :return: the insert documents
         """
+        import log
         transformed_data = self.translate_data(self.scrape_resources())
         transformed_data['scrapper'] = self.__class__.__name__
         return self._store_to_db(transformed_data)
