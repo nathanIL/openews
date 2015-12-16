@@ -22,7 +22,7 @@ An NLP (Natural Language Processing) based experimental project aimed to bundle 
 _cron_ or equivalent method).
 2. When the jobs are executed by a worker, the scrappers begin collecting the _data_ (news) from the various resources, 
 each collects its own resources asynchronously ( _gevent_ ).
-3. Each scrapper stores its scrapped data in a nested document inside _raw_ collection, the nested object is named as
+3. Each scrapper stores its scrapped data in a nested document inside _raw_ database, the nested object is named as
 the scrapper class name in lower case letters. A typical scrapper document has the following fields:
 ```
 {
@@ -30,10 +30,18 @@ the scrapper class name in lower case letters. A typical scrapper document has t
         title: string,
         url: string,
         scraped_at: datetime.utcnow()
+        (1)bundled: 1,
+        (2)title_en: string
 }
 ```
+_Notes_:
+    * (1) _bundled_ is an optional property which is available only when the document was already classified by the NLP 
+    process. it means that this document was found similar to other documents and was bundled with them.
+    * (2) _title_en_ is also an optional property which is available only if a translation was performed. The original
+    is _title_. 
 4. DataProcessors are queued by _rq_ as jobs in redis to the **_nlp_process_** queue once every T minutes (scheduled by 
-_cron_ or equivalent method).
+_cron_ or equivalent method). If similar documents are found in _raw_ database, they will be stored in the _bundled_ 
+database in the following structure:
 
 
 ##### Details

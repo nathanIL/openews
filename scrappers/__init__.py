@@ -160,6 +160,7 @@ class Scrapper(metaclass=abc.ABCMeta):
                     break
                 except (ConnectionError, Timeout, TooManyRedirects):
                     retries += 1
+                    gevent.sleep(5)
                     self.logger().exception("Could not GET resource: %s" % url)
 
             return result

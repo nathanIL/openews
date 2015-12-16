@@ -31,4 +31,20 @@ class Language(Command):
             # TODO: Implement
             with MongoClientContext(self._mongo_conn_red) as mc:
                 scrapped_db = mc[self._raw_mongo_db_name]
-                print(scrapped_db.collection_names(include_system_collections=False))
+                print("Listing `")
+                for collection in scrapped_db.collection_names(include_system_collections=False):
+                    total_documents_count = scrapped_db[collection].count()
+                    bundled_documents_count = scrapped_db[collection].find({'bundled': {'$exists': True}}).count()
+                    print("""
+=======================================
+{0}
+{1}
+ * Total Documents: {2}
+ * Bundled: {3}
+=======================================
+                    """.format(collection, '-' * len(collection),
+                               total_documents_count,
+                               bundled_documents_count))
+                    # print(" {0}: {1}/{2} (Total Documents / Bundled Documents)".format(collection,
+                    #                                                                    total_documents_count,
+                    #                                                                    bundled_documents_count))

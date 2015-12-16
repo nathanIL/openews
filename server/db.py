@@ -21,8 +21,24 @@ class MongoClientContext(object):
     def logger(self):
         return logging.getLogger('openews.server')
 
+    def __getattr__(self, name):
+        """
+        We delegate to not found attributes to MongoClient.
+        :param name:
+        :return:
+        """
+        return getattr(self._client, name)
+
+    def __getitem__(self, item):
+        """
+        We delegate to not found items to MongoClient.
+        :param item:
+        :return:
+        """
+        return getattr(self._client, item)
+
     def __enter__(self):
-        return self._client
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is pymongo.errors.AutoReconnect:
