@@ -9,7 +9,6 @@ class Language(Command):
     """
     Manage Natural Language Processing (NLP) related tasks.
     """
-
     def __init__(self, redis_conn_rec, mongo_conn_rec, raw_mongo_db_name, jobs_queue):
         super().__init__()
         self._jobs_queue = jobs_queue

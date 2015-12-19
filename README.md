@@ -60,22 +60,25 @@ The following packages are required (names might be slightly different depending
 
 #### Testing
 
-**Unit tests** are using _nose_ located under the _tests_ folder, can be exectuded by running:
+**Unit tests** are using _nose_ located under the _tests_ folder, can be executed by running:
+```
+$ make configure-test && make test
+```
+Any subsequent can be executed only by running (as the environment is already prepared):
+```
+$ make test
+```
 
-1. First create a _virtualenv_:
+#### Running
+Depending on the environment its going to run, a general way to deploy this is as follows:
+
+1. Make sure you have _MongoDB_ and _Redis_ installed and running on the ports listed in _configure-production.py_.
+2. First prepare the environment:
 ```
-$ virtualenv -p python3 venv
+$ make clean && make configure-prod
 ```
-2. Load the virtual environment ( _virtualenv_ ):
+3. Load ( _source_ ) the virtual environment ( _virtualenv_ ):
 ```
 $ source venv/bin/activate
 ```
-
-3. Install all the development dependencies:
-```
-$ pip install -r requirements-dev.txt
-```
-4. Run the test suite:
-```
-$ export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/; unset OPENEWS_DEVELOPMENT_ENV;
-```
+4. To schedule all scrappers for work, use:
