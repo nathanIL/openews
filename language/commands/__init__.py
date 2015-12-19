@@ -1,7 +1,7 @@
 from flask.ext.script import Command, Option, Group
 from rq import Queue
 from redis import Redis
-from server.db import MongoClientContext
+from language.utils import stats
 
 
 class Language(Command):
@@ -20,21 +20,19 @@ class Language(Command):
     def jobs_queue_name(self):
         return self._jobs_queue
 
-    def get_options(self):
+    @staticmethod
+    def get_options():
         return [Group(Option('--stats', dest='stats', action='store_true',
-                             help='Shows documents statistics (bundled, categorized, etc'),
+                             help='Shows documents statistics (bundled, total, etc'),
                       exclusive=True,
                       required=True)]
 
     def run(self, **options):
         if options['stats']:
-            # TODO: Implement
-            with MongoClientContext(self._mongo_conn_red) as mc:
-                scrapped_db = mc[self._raw_mongo_db_name]
-                print("Listing `")
-                for collection in scrapped_db.collection_names(include_system_collections=False):
-                    total_documents_count = scrapped_db[collection].count()
-                    bundled_documents_count = scrapped_db[collection].find({'bundled': {'$exists': True}}).count()
+            statistics = stats(self._mongo_conn_red, self._raw_mongo_db_name)
+            if statistics:
+                print("Listing scrapped documents statistics:")
+                for col in statistics:
                     print("""
 =======================================
 {0}
@@ -42,9 +40,6 @@ class Language(Command):
  * Total Documents: {2}
  * Bundled: {3}
 =======================================
-                    """.format(collection, '-' * len(collection),
-                               total_documents_count,
-                               bundled_documents_count))
-                    # print(" {0}: {1}/{2} (Total Documents / Bundled Documents)".format(collection,
-                    #                                                                    total_documents_count,
-                    #                                                                    bundled_documents_count))
+                    """.format(col.title(), '-' * len(col),
+                               statistics.get(col)['documents_count'],
+                               statistics.get(col)['bundled']))
