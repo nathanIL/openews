@@ -14,7 +14,7 @@ class MongoClientContext(object):
     """
 
     def __init__(self, mongo_conn_red):
-        self.logger.debug("Initializing MongoClient instance")
+        self.logger.debug("Initializing MongoClient instance with class: %s" % MONGO_CLIENT_CLASS)
         self._client = MONGO_CLIENT_CLASS(**mongo_conn_red._asdict())
 
     @property
