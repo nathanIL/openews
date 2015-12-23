@@ -1,4 +1,3 @@
-from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 import nltk
 
@@ -6,14 +5,15 @@ nltk.data.path.append('nltk_data')
 
 
 class Similarity(object):
-    def __init__(self, nltk_corpus):
+    def __init__(self, nltk_corpus, stopwords):
         """
         Creates a similarity class.
         :param nltk_corpus: an nltk.corpus instance
+        :param stopwords: an iterable holding a list of stop-words
         :return:
         """
         self._nltk_corpus = nltk_corpus
-        self._stopwords = stopwords.words('english')
+        self._stopwords = stopwords
 
     @property
     def nltk_corpus(self):

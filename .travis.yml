@@ -9,7 +9,8 @@ before_install:
 install:
   - pip install coveralls
   - pip install -r requirements-dev.txt
+  - python -m nltk.downloader -d nltk_data stopwords reuters punkt
 env:
   - OPENEWS_DEVELOPMENT_ENV=true
-script: nosetests -v -s  --with-coverage --cover-package=scrappers --cover-package=server tests/
+script: nosetests -v -s  --with-coverage --cover-package=scrappers --cover-package=server --cover-package=language tests/
 after_success: coveralls

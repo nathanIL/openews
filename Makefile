@@ -15,6 +15,7 @@ clean:
 configure-test:
 	virtualenv --clear -p python3 venv;
 	source venv/bin/activate && pip install -r requirements-dev.txt;
+	source venv/bin/activate && python -m nltk.downloader -d nltk_data stopwords reuters punkt
 
 configure-prod:
 	virtualenv --clear -p python3 venv;
@@ -22,4 +23,4 @@ configure-prod:
 	source venv/bin/activate && python -m nltk.downloader -d nltk_data stopwords reuters punkt
 
 test:
-	source venv/bin/activate && export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/; unset OPENEWS_DEVELOPMENT_ENV;
+	source venv/bin/activate && (export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/; unset OPENEWS_DEVELOPMENT_ENV);
