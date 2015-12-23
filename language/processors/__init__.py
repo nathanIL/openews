@@ -1,4 +1,5 @@
 from nltk.probability import FreqDist
+from nltk.tokenize import word_tokenize
 import nltk
 
 nltk.data.path.append('nltk_data')
@@ -14,6 +15,41 @@ class Similarity(object):
         """
         self._nltk_corpus = nltk_corpus
         self._stopwords = stopwords
+        self._tokenized_sentences = []
+        self._dictionary = None
+
+    @property
+    def tokenized_corpus_sentences(self):
+        """
+        Returns (or creates if not already created / called) a list of tokenized documents from the loaded nltk.corpus.
+        By tokenized, I mean, remove stop-words, and words that their frequency distribution is 1.
+        :return: list
+        """
+        if not self._tokenized_sentences:
+            stops = set([w.lower() for w in self.stopwords])
+            freq_dist = FreqDist()
+
+            for sentence in self.nltk_corpus.sents():
+                document = []
+                for word in [w.lower() for w in sentence if w.lower() not in stops]:
+                    freq_dist[word] += 1
+                    if freq_dist[word] > 1:
+                        document.append(word)
+                self._tokenized_sentences.append(document)
+
+        return self._tokenized_sentences
+
+    @property
+    def dictionary(self):
+        """
+        A dictionary of the loaded corpus make from the tokenized sentences.
+        :return: gensim.corpora.dictionary.Dictionary instance
+        """
+        from gensim.corpora.dictionary import Dictionary
+        if self._dictionary is None:
+            self._dictionary = Dictionary(self.tokenized_corpus_sentences)
+
+        return self._dictionary
 
     @property
     def nltk_corpus(self):
@@ -23,21 +59,10 @@ class Similarity(object):
     def stopwords(self):
         return self._stopwords
 
-    def corpus_to_tokenized_documents(self):
+    def tokenize_sentence(self, sentence):
         """
-        Creates a list of tokenized documents from the nltk.corpus
-        :param corpus:
-        :return: a list of tokenized documents
+        Tokenize a sentence (see 'tokenized_corpus_sentences' method on what tokenization in this context means).
+        :param sentence: str
+        :return: a list
         """
-        stops = set([w.lower() for w in self.stopwords])
-        freq_dist = FreqDist()
-        documents = []
-
-        for sentence in self.nltk_corpus.sents():
-            document = []
-            for word in [w.lower() for w in sentence if w.lower() not in stops]:
-                freq_dist[word] += 1
-                if freq_dist[word] > 1:
-                    document.append(word)
-            documents.append(document)
-        return documents
+        return [w.lower() for w in word_tokenize(sentence) if w.lower() not in self.stopwords]
