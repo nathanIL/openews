@@ -17,6 +17,7 @@ class Similarity(object):
         self._stopwords = stopwords
         self._tokenized_sentences = []
         self._dictionary = None
+        self._tfidf_model = None
 
     @property
     def tokenized_corpus_sentences(self):
@@ -29,7 +30,7 @@ class Similarity(object):
             stops = set([w.lower() for w in self.stopwords])
             freq_dist = FreqDist()
 
-            for sentence in self.nltk_corpus.sents():
+            for sentence in self._nltk_corpus.sents():
                 document = []
                 for word in [w.lower() for w in sentence if w.lower() not in stops]:
                     freq_dist[word] += 1
@@ -52,11 +53,11 @@ class Similarity(object):
         return self._dictionary
 
     @property
-    def nltk_corpus(self):
-        return self._nltk_corpus
-
-    @property
     def stopwords(self):
+        """
+        Stopwords list as provided in the constructor.
+        :return: a list of stopwords
+        """
         return self._stopwords
 
     def tokenize_sentence(self, sentence):
@@ -66,3 +67,22 @@ class Similarity(object):
         :return: a list
         """
         return [w.lower() for w in word_tokenize(sentence) if w.lower() not in self.stopwords]
+
+    def trasform_to_tfidf_model(self):
+        """
+         TF-IDF model transformation with for loaded training corpus.
+        :return: gensim.models.tfidfmodel.TfidfModel instance
+        """
+        from gensim.models import TfidfModel
+        if self._tfidf_model is None:
+            self._tfidf_model = TfidfModel(dictionary=self.dictionary)
+
+        return self._tfidf_model
+
+    def sentence_to_bow(self, sentence):
+        """
+        Transforms a string sentence to a VSM bag-of-words representation.
+        :param sentence: str
+        :return: list of tuples
+        """
+        return self.dictionary.doc2bow(self.tokenize_sentence(sentence))

@@ -24,3 +24,6 @@ configure-prod:
 
 test:
 	source venv/bin/activate && (export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/; unset OPENEWS_DEVELOPMENT_ENV);
+
+test-language:
+	source venv/bin/activate && (export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/test_language_*; unset OPENEWS_DEVELOPMENT_ENV);
