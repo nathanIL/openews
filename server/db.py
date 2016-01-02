@@ -2,6 +2,7 @@ import pymongo
 import logging
 from pymongo import MongoClient
 from collections import namedtuple
+from server import server_app
 
 MONGO_CLIENT_CLASS = MongoClient
 MongoConnectionRecord = namedtuple('MongoConnectionRecord', ['host', 'port', 'connect'])
@@ -28,6 +29,26 @@ class MongoClientContext(object):
         :return:
         """
         return getattr(self._client, name)
+
+    def raw_db(self):
+        """
+        The RAW database
+        :return: pymongo.database.Database
+        """
+        return self[server_app.config['MONGO_RAW_COLLECTION']]
+
+    def scrappers_collections(self):
+        """
+        Returns the scrapper collections.
+        :return: a list of pymongo.collection.Collection
+        """
+        from scrappers.utils import scrapper_classes
+        scrapper_classes = set([c.__name__.lower() for c in scrapper_classes()])
+        collections = []
+        for scrapper_collection in [s for s in self.raw_db().collection_names(include_system_collections=False) if
+                                    s in scrapper_classes]:
+            collections.append(self.raw_db().get_collection(scrapper_collection))
+        return collections
 
     def __getitem__(self, item):
         """

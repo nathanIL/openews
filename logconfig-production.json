@@ -2,7 +2,7 @@
   "version": 1,
   "formatters": {
     "standard": {
-      "format": "[%(asctime)s][%(filename)s][%(levelname)s]: %(message)s"
+      "format": "[%(asctime)s][%(pathname)s]%(levelname)s]: %(message)s"
     }
   },
   "handlers": {
@@ -16,6 +16,13 @@
     "scrappers_rotating_file": {
       "class": "logging.handlers.RotatingFileHandler",
       "filename": "openews_scrappers.log",
+      "maxBytes": 1048576,
+      "backupCount": 10,
+      "formatter": "standard"
+    },
+    "language_rotating_file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "filename": "openews_language.log",
       "maxBytes": 1048576,
       "backupCount": 10,
       "formatter": "standard"
@@ -33,6 +40,13 @@
       "level": "DEBUG",
       "handlers": [
         "scrappers_rotating_file"
+      ],
+      "propagate": true
+    },
+    "openews.language": {
+      "level": "DEBUG",
+      "handlers": [
+        "language_rotating_file"
       ],
       "propagate": true
     }

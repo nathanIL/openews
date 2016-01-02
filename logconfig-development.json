@@ -2,7 +2,7 @@
   "version": 1,
   "formatters": {
     "standard": {
-      "format": "[%(asctime)s][%(filename)s][%(levelname)s]: %(message)s"
+      "format": "[%(asctime)s][%(pathname)s][%(levelname)s]: %(message)s"
     }
   },
   "handlers": {
@@ -20,6 +20,13 @@
       "propagate": true
     },
     "openews.scrappers": {
+      "level": "DEBUG",
+      "handlers": [
+        "console"
+      ],
+      "propagate": true
+    },
+    "openews.language": {
       "level": "DEBUG",
       "handlers": [
         "console"

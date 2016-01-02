@@ -176,7 +176,7 @@ class Scrapper(metaclass=abc.ABCMeta):
         # TODO: Catch more specific exceptions (??)
         inserted = []
         with MongoClientContext(self.mongo_connection_record) as client:
-            raw_db = client[server_app.config['MONGO_RAW_COLLECTION']]
+            raw_db = client.raw_db()
             if self.__class__.__name__.lower() not in client.database_names():
                 self.logger().debug("Creating unique index [%s] on: %s", 'url', self.__class__.__name__.lower())
                 raw_db[self.__class__.__name__.lower()].create_index([('url', pymongo.ASCENDING)], unique=True)
