@@ -82,8 +82,7 @@ class Transformer(object):
         """
         with MongoClientContext(self._mongo_client_ctx) as client:
             self._create_dictionary(client)
-            print(self.dictionary)
-            #self.__create_lsi_model(client)
+            self._create_lsi_model(client)
 
     def _create_dictionary(self, mongo_client):
         """
@@ -116,11 +115,11 @@ class Transformer(object):
         from gensim.models import LsiModel
 
         bow_corpus = []
-        mapping = dict()
+        #mapping = dict()
         for collection in mongo_client.scrappers_collections():
             for doc in collection.find():
                 bow_corpus.append(self.sentence_to_bow(doc['title']))
-                mapping[len(bow_corpus) - 1] = doc['title']
+                #mapping[len(bow_corpus) - 1] = doc['title']
 
         self._lsimodel = LsiModel(bow_corpus, id2word=self.dictionary)
 

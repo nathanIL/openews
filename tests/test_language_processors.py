@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 import unittest
 import os
 
+
 @unittest.skipIf(os.environ.get('TRAVIS', None) is not None, "Skipping in Travis CI builds")
 class TestTransformer(unittest.TestCase):
     def __init__(self, *args, **kwargs):

@@ -43,10 +43,10 @@ class MongoClientContext(object):
         :return: a list of pymongo.collection.Collection
         """
         from scrappers.utils import scrapper_classes
-        scrapper_classes = set([c.__name__.lower() for c in scrapper_classes()])
+        scrapper_classes_names = set([c.__name__.lower() for c in scrapper_classes()])
         collections = []
         for scrapper_collection in [s for s in self.raw_db().collection_names(include_system_collections=False) if
-                                    s in scrapper_classes]:
+                                    s in scrapper_classes_names]:
             collections.append(self.raw_db().get_collection(scrapper_collection))
         return collections
 
