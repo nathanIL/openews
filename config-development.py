@@ -9,3 +9,5 @@ REDIS_PORT = 6379
 LOG_CONFIG = 'logconfig-development.json'
 SCRAPPERS_JOBS_QUEUE = 'scrapper_jobs'
 NLP_PROCESS_QUEUE = 'nlp_process'
+SIMILARITY_THRESHOLD = 0.78
+

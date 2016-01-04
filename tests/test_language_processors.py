@@ -17,3 +17,12 @@ class TestTransformer(unittest.TestCase):
 
     def test_stopwords(self):
         self.assertIsInstance(self._transformer.stopwords, list, "Are stopwords returned as a list?")
+
+    def test_similarity_threshold(self):
+        threshold = self._transformer.similarity_threshold
+        self.assertIsInstance(threshold, float, "Is returned type a float?")
+        self.assertGreaterEqual(threshold, 0, "Is return value >=0?")
+        self.assertLessEqual(threshold, 1.0, "Is return value <=1?")
+
+    def test_calculate_similarities(self):
+        self._transformer.calculate_similarities()
