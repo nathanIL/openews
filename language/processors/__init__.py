@@ -2,6 +2,7 @@ from nltk.tokenize import word_tokenize
 from server.db import MongoClientContext
 from operator import itemgetter
 from server import server_app
+from collections import defaultdict
 import tempfile
 import os
 import nltk
@@ -160,8 +161,10 @@ class Transformer(object):
     def calculate_similarities(self):
         """
         Find / calculate similarities between documents in the index.
-        :return:
+        Returns a dict with the
+        :return: defaultdict(list)
         """
+        similarities = defaultdict(list)
         if not self._lsi_mapping:
             return
 
@@ -172,9 +175,12 @@ class Transformer(object):
             sim_vector = self.similarity_index[latent_space_vector]
             sorted_mapped_vector = list(sorted(enumerate(sim_vector), key=itemgetter(1)))
             self.logger().debug(
-                    "Similar sentences to with THRESHOLD >= {0}: {1}".format(self.similarity_threshold, sentence))
-            for sit in [v for v in sorted_mapped_vector if v[0] is not idx and v[1] >= self.similarity_threshold]:
-                print("[{0}]: {1}".format(sit[1], self._lsi_mapping[sit[0]][1][self.considerable_doc_property]))
+                    "Similar sentences to [THRESHOLD {0}]: {1}".format(self.similarity_threshold, sentence))
+            for sit in [v for v in sorted_mapped_vector if v[0] != idx and v[1] >= self.similarity_threshold]:
+                if sit[0] not in similarities:
+                    similarities[idx].append(sit)
+                #print("[{0}]: {1}".format(sit[1], self._lsi_mapping[sit[0]][1][self.considerable_doc_property]))
+        return similarities
 
     def tokenize_sentence(self, sentence):
         """
