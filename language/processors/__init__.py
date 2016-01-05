@@ -92,6 +92,14 @@ class Transformer(object):
         """
         return server_app.config['SIMILARITY_THRESHOLD']
 
+    @property
+    def lsi_index_mapping(self):
+        """
+        A mapping between the LSI model index (key) and the documents (Collection the document is in, document)
+        :return: dict
+        """
+        return self._lsi_mapping
+
     @staticmethod
     def _create_resource_path(resource_file):
         """
@@ -161,14 +169,16 @@ class Transformer(object):
     def calculate_similarities(self):
         """
         Find / calculate similarities between documents in the index.
-        Returns a dict with the
+        Returns a defaultdict with the key as the LSI index and the value is a list of tuples with the following values
+        (LSI Index, similarity threshold)
+        tuple
         :return: defaultdict(list)
         """
         similarities = defaultdict(list)
-        if not self._lsi_mapping:
+        if not self.lsi_index_mapping:
             return
 
-        for idx, tp in sorted(self._lsi_mapping.items(), key=itemgetter(0)):
+        for idx, tp in sorted(self.lsi_index_mapping.items(), key=itemgetter(0)):
             sentence = tp[1][self.considerable_doc_property]
             bow = self.sentence_to_bow(sentence)
             latent_space_vector = self.lsi_model[bow]
@@ -180,6 +190,7 @@ class Transformer(object):
                 if sit[0] not in similarities:
                     similarities[idx].append(sit)
                 #print("[{0}]: {1}".format(sit[1], self._lsi_mapping[sit[0]][1][self.considerable_doc_property]))
+        print(similarities)
         return similarities
 
     def tokenize_sentence(self, sentence):
