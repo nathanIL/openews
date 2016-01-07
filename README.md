@@ -45,7 +45,7 @@ database in the following structure:
 
 
 ##### Details
- * Compound indexe on: _url_ ASCENDING
+ * Unique index on: _title_ ASCENDING
  * In case translation was made to _title_ then it will be stored in _title_en_.
 
 

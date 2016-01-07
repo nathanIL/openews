@@ -1,5 +1,6 @@
 import scrappers
 import scrappers.mixins
+import re
 
 
 class Telegraph(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
@@ -14,6 +15,14 @@ class Telegraph(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
 
     def encoding(self):
         return 'utf-8'
+
+    def skipping_rules(self, title):
+        """ Skip some non relevant news titles that we want to skip, like Pictures of the day, etc.
+        :param title: The scraped title
+        :return: True if we want to skip, otherwise False.
+        """
+        skip_regexs = [re.compile(r'^\s*Pictures\s+of\s+the\s+day:', re.IGNORECASE)]
+        return any([r.match(title) for r in skip_regexs])
 
     def resource_urls(self):
         # TODO: Telegraph has hunderends of iteresting RSS feeds. we can scrape all of them and create the return list

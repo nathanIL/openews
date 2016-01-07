@@ -21,10 +21,12 @@ class BBC(scrappers.mixins.RSSScrapper, scrappers.Scrapper):
         :param title: The scraped title
         :return: True if we want to skip, otherwise False.
         """
-        skip_regexs = [re.compile(r'.+country profile$', re.IGNORECASE),
+        skip_regexs = [re.compile(r'.+profile$', re.IGNORECASE),
                        re.compile(r'^(?:\w+(?:\s+|-+)?\w*)\s+profile$', re.IGNORECASE),
                        re.compile(r'.+profile\s*-\s*Overview$', re.IGNORECASE),
-                       re.compile(r'^Country profile:.+', re.IGNORECASE),
+                       re.compile(r'^\s*Country\s+profile:.+', re.IGNORECASE),
+                       re.compile(r'^\s*(?:In|Your)\s+pictures:', re.IGNORECASE),
+                       re.compile(r'^\s*Regions\s+and\s+territories:', re.IGNORECASE),
                        re.compile(r'^VIDEO\s*:.+', re.IGNORECASE)]
         return any([r.match(title) for r in skip_regexs])
 

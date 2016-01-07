@@ -3,6 +3,8 @@ from server.db import MongoClientContext
 from operator import itemgetter
 from server import server_app
 from collections import defaultdict
+from itertools import chain
+import string
 import tempfile
 import os
 import nltk
@@ -11,9 +13,9 @@ import logging
 nltk.data.path.append('nltk_data')
 
 
-class Transformer(object):
+class Similarities(object):
     """
-    Transforms the scrapped texts (aka the corpus) to to a dictionary and various models (mostly VSM based like LSI).
+    Class for text similarities stuff
     """
 
     def __init__(self, mongo_client_ctx, stopwords):
@@ -50,14 +52,6 @@ class Transformer(object):
         :return: str
         """
         return "openews.processors.dict"
-
-    @property
-    def stopwords(self):
-        """
-        Stopwords list as provided in the constructor.
-        :return: a list of stopwords
-        """
-        return self._stopwords
 
     @property
     def dictionary(self):
@@ -170,7 +164,7 @@ class Transformer(object):
         """
         Find / calculate similarities between documents in the index.
         Returns a defaultdict with the key as the LSI index and the value is a list of tuples with the following values
-        (LSI Index, similarity threshold)
+        (LSI model Index, similarity threshold - numpy.float32)
         tuple
         :return: defaultdict(list)
         """
@@ -184,13 +178,18 @@ class Transformer(object):
             latent_space_vector = self.lsi_model[bow]
             sim_vector = self.similarity_index[latent_space_vector]
             sorted_mapped_vector = list(sorted(enumerate(sim_vector), key=itemgetter(1)))
-            self.logger().debug(
-                    "Similar sentences to [THRESHOLD {0}]: {1}".format(self.similarity_threshold, sentence))
-            for sit in [v for v in sorted_mapped_vector if v[0] != idx and v[1] >= self.similarity_threshold]:
+            for sit in [v for v in sorted_mapped_vector if
+                        v[0] != idx and v[1] >= self.similarity_threshold and tp[0].name !=
+                                self.lsi_index_mapping[v[0]][0].name]:
                 if sit[0] not in similarities:
                     similarities[idx].append(sit)
-                #print("[{0}]: {1}".format(sit[1], self._lsi_mapping[sit[0]][1][self.considerable_doc_property]))
-        print(similarities)
+
+        # for s in similarities.items():
+        #     main_sentence = self.lsi_index_mapping[s[0]][1][self.considerable_doc_property]
+        #     print("[%s] %s:" % (self.lsi_index_mapping[s[0]][0].name, main_sentence))
+        #     for sm in s[1]:
+        #         print("\t[%f][%s]: %s" % (sm[1], self._lsi_mapping[sm[0]][0].name,
+        #                                   self.lsi_index_mapping[sm[0]][1][self.considerable_doc_property]))
         return similarities
 
     def tokenize_sentence(self, sentence):
@@ -199,7 +198,8 @@ class Transformer(object):
         :param sentence: str
         :return: a list
         """
-        return [w.lower() for w in word_tokenize(sentence) if w.lower() not in self.stopwords]
+        excluded = set(chain(self._stopwords, string.punctuation))
+        return [w.lower() for w in word_tokenize(sentence) if w.lower() not in excluded]
 
     def sentence_to_bow(self, sentence):
         """

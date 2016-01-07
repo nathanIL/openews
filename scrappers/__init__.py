@@ -178,8 +178,8 @@ class Scrapper(metaclass=abc.ABCMeta):
         with MongoClientContext(self.mongo_connection_record) as client:
             raw_db = client.raw_db()
             if self.__class__.__name__.lower() not in client.database_names():
-                self.logger().debug("Creating unique index [%s] on: %s", 'url', self.__class__.__name__.lower())
-                raw_db[self.__class__.__name__.lower()].create_index([('url', pymongo.ASCENDING)], unique=True)
+                self.logger().debug("Creating unique index [%s] on: %s", 'title', self.__class__.__name__.lower())
+                raw_db[self.__class__.__name__.lower()].create_index([('title', pymongo.ASCENDING)], unique=True)
             for doc in documents['categories']:
                 try:
                     self.logger().debug("[%s]: Inserting document: %s", self.__class__.__name__.lower(), doc)
