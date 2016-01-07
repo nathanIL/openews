@@ -27,7 +27,7 @@ manager.add_command('scrapper',
 manager.add_command('language',
                     Language(redis_conn_rec=redis_connection_record,
                              mongo_conn_rec=mongo_connection_record,
-                             raw_mongo_db_name=server_app.config['MONGO_RAW_COLLECTION'],
+                             raw_mongo_db_name=server_app.config['MONGO_SCRAPPERS_DB'],
                              jobs_queue=server_app.config['NLP_PROCESS_QUEUE']))
 
 if __name__ == "__main__":

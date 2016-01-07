@@ -176,14 +176,14 @@ class Scrapper(metaclass=abc.ABCMeta):
         # TODO: Catch more specific exceptions (??)
         inserted = []
         with MongoClientContext(self.mongo_connection_record) as client:
-            raw_db = client.raw_db()
+            scrappers_db = client.scrappers_db()
             if self.__class__.__name__.lower() not in client.database_names():
                 self.logger().debug("Creating unique index [%s] on: %s", 'title', self.__class__.__name__.lower())
-                raw_db[self.__class__.__name__.lower()].create_index([('title', pymongo.ASCENDING)], unique=True)
+                scrappers_db[self.__class__.__name__.lower()].create_index([('title', pymongo.ASCENDING)], unique=True)
             for doc in documents['categories']:
                 try:
                     self.logger().debug("[%s]: Inserting document: %s", self.__class__.__name__.lower(), doc)
-                    inserted.append(raw_db[self.__class__.__name__.lower()].insert(doc))
+                    inserted.append(scrappers_db[self.__class__.__name__.lower()].insert(doc))
                 except pymongo.errors.DuplicateKeyError:
                     self.logger().debug("[%s]: Document [%s] already exists, skipping", self.__class__.__name__.lower(),
                                         doc)

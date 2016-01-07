@@ -1,7 +1,7 @@
 import pymongo
 import logging
 from pymongo import MongoClient
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from server import server_app
 
 MONGO_CLIENT_CLASS = MongoClient
@@ -30,12 +30,12 @@ class MongoClientContext(object):
         """
         return getattr(self._client, name)
 
-    def raw_db(self):
+    def scrappers_db(self):
         """
         The RAW database
         :return: pymongo.database.Database
         """
-        return self[server_app.config['MONGO_RAW_COLLECTION']]
+        return self[server_app.config['MONGO_SCRAPPERS_DB']]
 
     def scrappers_collections(self):
         """
@@ -45,10 +45,25 @@ class MongoClientContext(object):
         from scrappers.utils import scrapper_classes
         scrapper_classes_names = set([c.__name__.lower() for c in scrapper_classes()])
         collections = []
-        for scrapper_collection in [s for s in self.raw_db().collection_names(include_system_collections=False) if
+        for scrapper_collection in [s for s in self.scrappers_db().collection_names(include_system_collections=False) if
                                     s in scrapper_classes_names]:
-            collections.append(self.raw_db().get_collection(scrapper_collection))
+            collections.append(self.scrappers_db().get_collection(scrapper_collection))
         return collections
+
+    def scrappers_collections_statistics(self):
+        """
+        Scrappers database collections statistics
+        :return: defaultdict
+        """
+        results = defaultdict(dict)
+        for collection in self.scrappers_collections():
+            total_documents_count = collection.count()
+            bundled_documents_count = collection.find({'bundled': {'$exists': True}}).count()
+            results[collection.name]['documents_count'] = total_documents_count
+            results[collection.name]['similar'] = bundled_documents_count
+            results[collection.name]['last_scrapped_at'] = collection.find().sort('scraped_at',
+                                                                                  pymongo.DESCENDING)[0]['scraped_at']
+        return results
 
     def __getitem__(self, item):
         """
