@@ -1,8 +1,8 @@
 TESTING = True
 SERVER_PORT = 9000
 SERVER_HOST = '0.0.0.0'
-MONGO_SCRAPPERS_DB = 'scrappers'
-MONGO_SIMILARITIES_DB = 'similarities'
+MONGO_SCRAPPERS_DB = 'test_scrappers'
+MONGO_SIMILARITIES_DB = 'test_similarities'
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
 REDIS_HOST = 'localhost'

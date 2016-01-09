@@ -10,6 +10,12 @@ install:
   - pip install coveralls
   - pip install -r requirements-dev.txt
   - python -m nltk.downloader -d nltk_data punkt
+services:
+  - redis-server
+  - mongodb
+before_script:
+  - sleep 15
+  - mongo mydb_test --eval 'db.addUser("travis", "test");
 env:
   - OPENEWS_DEVELOPMENT_ENV=true
 script: nosetests -v -s  --with-coverage --cover-package=scrappers --cover-package=server --cover-package=language tests/
