@@ -22,7 +22,7 @@ An NLP (Natural Language Processing) based experimental project aimed to bundle 
 _cron_ or equivalent method).
 2. When the jobs are executed by a worker, the scrappers begin collecting the _data_ (news) from the various resources, 
 each collects its own resources asynchronously ( _gevent_ ).
-3. Each scrapper stores its scrapped data in a nested document inside _raw_ database, the nested object is named as
+3. Each scrapper stores its scrapped data in a nested document inside _scrappers_ database, the nested object is named as
 the scrapper class name in lower case letters. A typical scrapper document has the following fields:
 ```
 {

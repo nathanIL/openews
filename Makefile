@@ -16,12 +16,12 @@ clean:
 configure-test:
 	virtualenv --clear -p python3 venv;
 	source venv/bin/activate && pip install -r requirements-dev.txt;
-	source venv/bin/activate && python -m nltk.downloader -d nltk_data stopwords punkt
+	source venv/bin/activate && python -m nltk.downloader -d nltk_data punkt
 
 configure-prod:
 	virtualenv --clear -p python3 venv;
 	source venv/bin/activate && pip install -r requirements-prod.txt;
-	source venv/bin/activate && python -m nltk.downloader -d nltk_data stopwords punkt
+	source venv/bin/activate && python -m nltk.downloader -d nltk_data punkt
 
 test:
 	source venv/bin/activate && (export OPENEWS_DEVELOPMENT_ENV="true"; nosetests -v -s tests/test_*; unset OPENEWS_DEVELOPMENT_ENV);

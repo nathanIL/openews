@@ -1,6 +1,5 @@
 from language.processors import Similarities
 from manager import mongo_connection_record
-from nltk.corpus import stopwords
 from collections import defaultdict
 import unittest
 import os
@@ -10,13 +9,12 @@ import os
 class TestSimilarities(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._stpwrds = stopwords
         self._mcr = mongo_connection_record
         self._transformer = None
 
     def setUp(self):
         if self._transformer is None:
-            self._transformer = Similarities(self._mcr, self._stpwrds.words('english'))
+            self._transformer = Similarities(self._mcr)
 
     def test_similarity_threshold(self):
         threshold = self._transformer.similarity_threshold

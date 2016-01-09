@@ -32,10 +32,17 @@ class MongoClientContext(object):
 
     def scrappers_db(self):
         """
-        The RAW database
+        The scrappers database (holds data scrapped by scrappers).
         :return: pymongo.database.Database
         """
         return self[server_app.config['MONGO_SCRAPPERS_DB']]
+
+    def similarities_db(self):
+        """
+        The similarities database (holds similar scrapper documents).
+        :return: pymongo.database.Database
+        """
+        return self[server_app.config['MONGO_SIMILARITIES_DB']]
 
     def scrappers_collections(self):
         """

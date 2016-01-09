@@ -18,9 +18,9 @@ class Similarities(object):
     Class for text similarities stuff
     """
 
-    def __init__(self, mongo_client_ctx, stopwords):
-        self._stopwords = stopwords
-        self._mongo_client_ctx = mongo_client_ctx
+    def __init__(self, mongo_conn_rec, stopwords=None):
+        self._stopwords = set(stopwords) if stopwords is not None else set()
+        self._mongo_connection_record = mongo_conn_rec
         self._lsi_mapping = dict()
         self._sim_index = None
         self._dictionary = None
@@ -115,7 +115,7 @@ class Similarities(object):
         """
         Runs all the transformer methods listed providing the MongoDB client context instance.
         """
-        with MongoClientContext(self._mongo_client_ctx) as client:
+        with MongoClientContext(self._mongo_connection_record) as client:
             self._create_dictionary(client)
             self._create_lsi_similarity_index(client)
 
@@ -191,6 +191,14 @@ class Similarities(object):
         #         print("\t[%f][%s]: %s" % (sm[1], self._lsi_mapping[sm[0]][0].name,
         #                                   self.lsi_index_mapping[sm[0]][1][self.considerable_doc_property]))
         return similarities
+
+    def store_similarities(self, update=False):
+        """
+        Stores the similarities to the database
+        :param update: True to update existing, False to delete and add new items
+        """
+        with MongoClientContext(self._mongo_connection_record) as client:
+            pass
 
     def tokenize_sentence(self, sentence):
         """
