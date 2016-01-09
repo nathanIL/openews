@@ -8,11 +8,11 @@ import gevent.monkey
 import pymongo
 import pymongo.errors
 import logging
+import urllib3
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 from textblob import TextBlob
 from server.db import MongoClientContext, MongoConnectionRecord
 from server import server_app
-
 
 gevent.monkey.patch_socket()
 
@@ -152,6 +152,7 @@ class Scrapper(metaclass=abc.ABCMeta):
             retries = 0
             result = None
 
+            urllib3.disable_warnings()
             while retries <= 10:
                 try:
                     self.logger().debug("GETting resource: %s" % url)

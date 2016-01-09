@@ -33,7 +33,6 @@ class RSSTestCase(ScrapperTestCase):
         self.assertIsInstance(self._scrapper, self.scrapper_class())
 
     def test_run_http_tests(self):
-        """Executed HTTP mocked tests"""
         scrape_resouces_data = self._scrapper.scrape_resources()
         call_resouces_data = self._scrapper()
         self.assertIsInstance(scrape_resouces_data, dict, "Is 'scrape_resouces' returns a dict object?")
