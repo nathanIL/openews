@@ -184,12 +184,12 @@ class Similarities(object):
                 if sit[0] not in similarities:
                     similarities[idx].append(sit)
 
-        # for s in similarities.items():
-        #     main_sentence = self.lsi_index_mapping[s[0]][1][self.considerable_doc_property]
-        #     print("[%s] %s:" % (self.lsi_index_mapping[s[0]][0].name, main_sentence))
-        #     for sm in s[1]:
-        #         print("\t[%f][%s]: %s" % (sm[1], self._lsi_mapping[sm[0]][0].name,
-        #                                   self.lsi_index_mapping[sm[0]][1][self.considerable_doc_property]))
+        for s in similarities.items():
+            main_sentence = self.lsi_index_mapping[s[0]][1][self.considerable_doc_property]
+            print("[%s] %s:" % (self.lsi_index_mapping[s[0]][0].name, main_sentence))
+            for sm in s[1]:
+                print("\t[%f][%s]: %s" % (sm[1], self._lsi_mapping[sm[0]][0].name,
+                                          self.lsi_index_mapping[sm[0]][1][self.considerable_doc_property]))
         return similarities
 
     def store_similarities(self, update=False):
