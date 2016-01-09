@@ -14,8 +14,7 @@ services:
   - redis-server
   - mongodb
 before_script:
-  - sleep 15
-  - mongo mydb_test --eval 'db.addUser("travis", "test");
+  - sleep 30
 env:
   - OPENEWS_DEVELOPMENT_ENV=true
 script: nosetests -v -s  --with-coverage --cover-package=scrappers --cover-package=server --cover-package=language tests/
